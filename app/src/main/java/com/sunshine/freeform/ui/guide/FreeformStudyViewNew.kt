@@ -469,8 +469,10 @@ class FreeformStudyViewNew(
                                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                                 WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                                 WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                                WindowManager.LayoutParams.FLAG_DIM_BEHIND or
                                 WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
                     format = PixelFormat.RGBA_8888
+                    dimAmount = 0.2f
                     windowAnimations = android.R.style.Animation_Dialog
                 }
 
@@ -1093,6 +1095,9 @@ class FreeformStudyViewNew(
                             y = 0
                         }
                     }
+                }
+                windowLayoutParams.apply {
+                    dimAmount = 0.2f
                 }
                 windowManager.updateViewLayout(binding.root, windowLayoutParams)
                 isHangUp = false

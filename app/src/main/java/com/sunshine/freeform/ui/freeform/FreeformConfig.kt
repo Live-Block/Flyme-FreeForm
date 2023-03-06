@@ -19,6 +19,8 @@ data class FreeformConfig(
     var useSuiRefuseToFullScreen: Boolean = false,
     //屏幕旋转时变化缩放比例
     var changeDpi: Boolean = false,
+    // 降低背景亮度
+    var dimAmount: Float = 0.3f,
     //兼容模式启动
     @Deprecated("", ReplaceWith(""))
     var compatibleMode: Boolean = false,

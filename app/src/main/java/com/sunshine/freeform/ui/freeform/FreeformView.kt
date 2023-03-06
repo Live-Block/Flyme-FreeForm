@@ -329,6 +329,7 @@ class FreeformView(
                             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
                             WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+                    windowLayoutParams.dimAmount = 0f
                     windowManager.updateViewLayout(binding.root, windowLayoutParams)
                 }
             }
@@ -343,8 +344,10 @@ class FreeformView(
                             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                            WindowManager.LayoutParams.FLAG_DIM_BEHIND or
                             WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
 
+                    if (!isHangUp) windowLayoutParams.dimAmount = config.dimAmount
                     windowManager.updateViewLayout(binding.root, windowLayoutParams)
                 }
             }
@@ -431,8 +434,10 @@ class FreeformView(
                         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                         WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                         WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                        WindowManager.LayoutParams.FLAG_DIM_BEHIND or
                         WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
             format = PixelFormat.RGBA_8888
+            dimAmount = config.dimAmount
             windowAnimations = android.R.style.Animation_Dialog
         }
 
@@ -1027,6 +1032,9 @@ class FreeformView(
                         }
                     }
                 }
+                windowLayoutParams.apply {
+                    dimAmount = 0.2f
+                }
                 windowManager.updateViewLayout(binding.root, windowLayoutParams)
                 isHangUp = false
 
@@ -1039,6 +1047,9 @@ class FreeformView(
         }
 
         setWindowEnableUpdateAnimation()
+        windowLayoutParams.apply {
+            dimAmount = 0f
+        }
         if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_PORTRAIT) {
             windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
                 width = (HANGUP_HEIGHT * config.widthHeightRatio).roundToInt() + 2 * context.resources.getDimension(R.dimen.scale_view_size).toInt()
