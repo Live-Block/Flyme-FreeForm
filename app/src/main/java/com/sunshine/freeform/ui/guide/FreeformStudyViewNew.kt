@@ -1136,7 +1136,7 @@ class FreeformStudyViewNew(
         isHangUp = true
     }
 
-    fun destroy() {
+    override fun destroy() {
         isDestroy = true
         try {
             windowManager.removeViewImmediate(binding.root)

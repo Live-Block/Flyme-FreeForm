@@ -48,6 +48,21 @@
             android:max="500"
             app:showSeekBarValue="true" />
 
+        <SeekBarPreference
+            android:key="freeform_float_view_size"
+            android:title="Freeform float window Size"
+            app:iconSpaceReserved="false"
+            app:defaultValue="20"
+            app:min="10"
+            android:max="50"
+            app:showSeekBarValue="true" />
+
+        <SwitchPreference
+            android:key="flyme_style"
+            android:title="Flyme Style"
+            android:defaultValue="true"
+            app:iconSpaceReserved="false"/>
+
         <SwitchPreference
             android:key="remember_freeform_position"
             android:title="@string/remember_position_title"

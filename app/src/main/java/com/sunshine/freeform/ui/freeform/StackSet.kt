@@ -30,6 +30,13 @@ class StackSet {
         elementData.remove(element)
     }
 
+    fun clean() {
+        elementData.forEach {
+            it.destroy()
+            remove(it)
+        }
+    }
+
     fun containsFreeform(packageName: String, userId: Int): Boolean {
         elementData.forEach {
             if (it.config.packageName == packageName && it.config.userId == userId) {

@@ -1,6 +1,7 @@
 package com.sunshine.freeform.ui.freeform
 
 import android.content.Context
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import com.sunshine.freeform.app.MiFreeform
 
 class FreeformViewModel(private val context: Context) {
@@ -13,5 +14,13 @@ class FreeformViewModel(private val context: Context) {
 
     fun getIntSp(key: String, defaultValue: Int): Int {
         return sp.getInt(key, defaultValue)
+    }
+
+    fun registerOnSharedPreferenceChangeListener(listener: OnSharedPreferenceChangeListener) {
+        sp.registerOnSharedPreferenceChangeListener(listener)
+    }
+
+    fun unregisterOnSharedPreferenceChangeListener(listener: OnSharedPreferenceChangeListener) {
+        sp.unregisterOnSharedPreferenceChangeListener(listener)
     }
 }

@@ -14,7 +14,7 @@ data class FreeformConfig(
     //分辨率
     var freeformDpi: Int = 1,
     //宽高比，默认9：16
-    var widthHeightRatio: Float = 10f / 16f,
+    var widthHeightRatio: Float = 11f / 21f,
     //使用shizuku/sui阻止小窗跳出到全屏
     var useSuiRefuseToFullScreen: Boolean = false,
     //屏幕旋转时变化缩放比例
@@ -25,6 +25,8 @@ data class FreeformConfig(
     @Deprecated("", ReplaceWith(""))
     var compatibleMode: Boolean = false,
     var rememberPosition: Boolean = false,
+    // 挂起大小
+    var floatViewSize: Float = 0.4f,
     //记录启动位置
     var rememberX: Int = 0,
     var rememberY: Int = 0,

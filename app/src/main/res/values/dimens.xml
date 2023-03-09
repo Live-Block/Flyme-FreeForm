@@ -4,6 +4,7 @@
     <dimen name="scale_view_size">32dp</dimen>
     <dimen name="top_bar_height">0dp</dimen>
     <dimen name="bottom_bar_height">24dp</dimen>
+    <dimen name="bottom_bar_height_flyme">36dp</dimen>
     <dimen name="card_corner_radius">16dp</dimen>
     <dimen name="hang_up_tip_size">96dp</dimen>
 
@@ -40,9 +41,11 @@
     <dimen name="freeform_card_corner_radius">16dp</dimen>
     <dimen name="freeform_shadow">4dp</dimen>
     <dimen name="freeform_shadow_height">8dp</dimen>
+    <dimen name="freeform_screen_width_padding">64dp</dimen>
+    <dimen name="freeform_screen_height_padding">64dp</dimen>
 
-    <dimen name="floating_button_height">64dp</dimen>
-    <dimen name="floating_button_width">32dp</dimen>
+    <dimen name="floating_button_height">72dp</dimen>
+    <dimen name="floating_button_width">24dp</dimen>
 
     <!--hook launcher-->
     <dimen name="task_card_menu_option_vertical_padding">16dp</dimen>

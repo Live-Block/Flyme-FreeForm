@@ -88,6 +88,16 @@ object FreeformHelper {
         return freeformStackSet.peek() == freeformView
     }
 
+    fun checkAndClean() {
+        if (freeformStackSet.size() > 0) {
+            cleanRunningStackSet()
+        }
+    }
+
+    fun cleanRunningStackSet() {
+        freeformStackSet.clean()
+    }
+
     fun addFreeformToSet(freeformView: FreeformViewAbs) {
         freeformStackSet.push(freeformView)
         freeformPackageSet.add("${freeformView.config.packageName}/${freeformView.config.userId}")

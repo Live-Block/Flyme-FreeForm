@@ -13,6 +13,7 @@
         app:cardCornerRadius="@dimen/card_corner_radius"
         android:layout_marginHorizontal="@dimen/scale_view_size"
         android:layout_marginBottom="@dimen/freeform_shadow"
+        android:background="@android:color/transparent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -20,7 +21,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:backgroundTint="@color/color_surface">
+            android:background="@android:color/transparent">
 
             <TextureView
                 android:id="@+id/textureView"

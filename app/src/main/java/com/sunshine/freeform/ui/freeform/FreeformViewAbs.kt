@@ -4,4 +4,5 @@ abstract class FreeformViewAbs(open val config: FreeformConfig) {
     abstract fun toScreenCenter()
     abstract fun moveToFirst()
     abstract fun fromBackstage()
+    abstract fun destroy()
 }
