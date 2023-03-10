@@ -72,6 +72,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
 
+        <include
+            android:id="@+id/sideBar"
+            layout="@layout/view_bar_flyme"
+            android:layout_width="@dimen/bottom_bar_height_flyme"
+            android:layout_height="match_parent"
+            app:layout_constraintStart_toEndOf="@id/cardRoot"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
