@@ -601,13 +601,6 @@ class FreeformStudyViewNew(
         freeformHeight = if (FreeformHelper.screenIsPortrait(defaultDisplay.rotation)) (config.maxHeight * 0.75).roundToInt() else (config.maxHeight * 0.8).roundToInt()
         freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
 
-        if (config.changeDpi && config.packageName != QQ) {
-            config.freeformDpi = FreeformHelper.getScreenDpi(context) +
-                    if (screenRotation == Surface.ROTATION_0 || screenRotation == Surface.ROTATION_180) viewModel.getIntSp("freeform_dpi_portrait", 0)
-                    else viewModel.getIntSp("freeform_dpi_landscape", 0)
-            resizeVirtualDisplay()
-        }
-
         windowLayoutParams.apply {
             x = 0
             y = 0

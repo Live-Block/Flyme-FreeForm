@@ -7,19 +7,6 @@
     android:gravity="center">
 
     <LinearLayout
-        android:id="@+id/leftView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-
-    </LinearLayout>
-
-    <LinearLayout
         android:id="@+id/middleView"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -54,31 +41,5 @@
             android:layout_height="100dp"
             android:background="@drawable/bar_corners_bg_flyme" />
     </LinearLayout>
-
-    <LinearLayout
-        android:id="@+id/rightView"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:gravity="center"
-        android:visibility="gone"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
-    </LinearLayout>
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.33" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.67" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

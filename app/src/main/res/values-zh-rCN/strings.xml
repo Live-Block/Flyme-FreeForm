@@ -113,14 +113,10 @@
     <string name="setting_freeform_landscape_dpi_title">小窗内界面缩放-横屏</string>
     <string name="remember_position_title">记住小窗位置与大小</string>
     <string name="remember_position_summary">记住上次关闭小窗时的位置与大小</string>
-    <string name="change_dpi_title">在屏幕旋转时修改小窗缩放比例（实验性）</string>
-    <string name="change_dpi_summary">若未开启该选项，上述分别设置的小窗内界面缩放比例仅会在小窗首次启动时生效。开启该选项后，屏幕旋转时则会尝试改变缩放比例以达到上述设置的效果，但是部分应用会重新刷新内容。更严重地，在某些设备上可能会产生界面异常</string>
     <string name="use_sui_refuse_to_fullscreen_title">使用Shizuku/Sui阻止应用跳出小窗到全屏(实验性)</string>
     <string name="use_sui_refuse_to_fullscreen_summary">暂时只支持Android 12+。该功能建议仅在没有Xposed或者Xposed阻止失败时启用。尝试使用Shizuku/Sui阻止小窗内的应用从小窗跳出到全屏。该功能仍在测试中，不保证阻止成功，并且会导致屏幕闪烁、卡顿等问题</string>
     <string name="manual_adjust_freeform_rotation_title">手动调整小窗方向（实验性）</string>
     <string name="manual_adjust_freeform_rotation_summary">开启后，允许通过双击底栏中部按钮来手动旋转小窗方向。因为设备的多样性，该功能未必达到预期，请理性看待</string>
-    <string name="auto_scale_title">自由缩放小窗（测试）</string>
-    <string name="auto_scale_summary">可按照自由比例缩放小窗</string>
 
     <string name="category_floating">侧边栏</string>
     <string name="switch_floating">全局侧边栏</string>

@@ -58,21 +58,9 @@
             app:showSeekBarValue="true" />
 
         <SwitchPreference
-            android:key="flyme_style"
-            android:title="Flyme Style"
-            android:defaultValue="true"
-            app:iconSpaceReserved="false"/>
-
-        <SwitchPreference
             android:key="remember_freeform_position"
             android:title="@string/remember_position_title"
             android:summary="@string/remember_position_summary"
-            app:iconSpaceReserved="false"/>
-
-        <SwitchPreference
-            android:key="change_dpi"
-            android:title="@string/change_dpi_title"
-            android:summary="@string/change_dpi_summary"
             app:iconSpaceReserved="false"/>
 
         <SwitchPreference
@@ -85,12 +73,6 @@
             android:key="manual_adjust_freeform_rotation"
             android:title="@string/manual_adjust_freeform_rotation_title"
             android:summary="@string/manual_adjust_freeform_rotation_summary"
-            app:iconSpaceReserved="false"/>
-
-        <SwitchPreference
-            android:key="auto_scale"
-            android:title="@string/auto_scale_title"
-            android:summary="@string/auto_scale_summary"
             app:iconSpaceReserved="false"/>
 
 <!--        <SwitchPreference-->

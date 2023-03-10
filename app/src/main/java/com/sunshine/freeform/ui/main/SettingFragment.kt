@@ -181,11 +181,9 @@ class SettingFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClick
         private const val NOTIFICATION_FREEFORM_APPS = "notification_freeform_apps"
         private const val SHOW_FLOATING = "show_floating"
         private const val NOTIFY_FREEFORM = "notify_freeform"
-        private const val FLYME_STYLE = "flyme_style"
         private const val RESET_OVERLAY_SETTING = "reset_overlay_setting"
         private const val SERVICE_TYPE = "service_type"
         private const val FREEFORM_SCALE_PORTRAIT = "freeform_scale_portrait"
         private const val FREEFORM_SCALE_LANDSCAPE = "freeform_scale_landscape"
-        private const val FREEFORM_FLOAT_VIEW_SIZE = "freeform_float_view_size"
     }
 }

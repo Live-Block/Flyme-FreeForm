@@ -17,8 +17,6 @@ data class FreeformConfig(
     var widthHeightRatio: Float = 11f / 21f,
     //使用shizuku/sui阻止小窗跳出到全屏
     var useSuiRefuseToFullScreen: Boolean = false,
-    //屏幕旋转时变化缩放比例
-    var changeDpi: Boolean = false,
     // 降低背景亮度
     var dimAmount: Float = 0.3f,
     //兼容模式启动
@@ -26,14 +24,12 @@ data class FreeformConfig(
     var compatibleMode: Boolean = false,
     var rememberPosition: Boolean = false,
     // 挂起大小
-    var floatViewSize: Float = 0.4f,
+    var floatViewSize: Float = 0.2f,
     //记录启动位置
     var rememberX: Int = 0,
     var rememberY: Int = 0,
     //手动调整小窗方向
     var manualAdjustFreeformRotation: Boolean = false,
-    //自由比例缩放
-    var autoScale: Boolean = false
 ) {
 
 }

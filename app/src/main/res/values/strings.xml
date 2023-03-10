@@ -69,8 +69,6 @@
     <string name="category_freeform">freeform settings</string>
     <string name="setting_freeform_dpi_title">Freeform interface scaling - vertical screen</string>
     <string name="setting_freeform_landscape_dpi_title">Freeform interface scaling - horizontal screen</string>
-    <string name="change_dpi_title">Modify freeform scaling when screen is rotated (experimental)</string>
-    <string name="change_dpi_summary">If this option is not enabled, the scaling ratio of the interface in the freeform set above will only take effect when the freeform is started for the first time. When this option is turned on, when the screen is rotated, it will try to change the zoom ratio to achieve the effect of the above settings, but some applications will refresh the content. More seriously, UI exceptions may occur on some devices</string>
     <string name="use_sui_refuse_to_fullscreen_title">Use Shizuku/Sui to prevent apps from popping out of freeform to full screen (experimental)</string>
     <string name="use_sui_refuse_to_fullscreen_summary">Currently only supports Android 12+. This feature is recommended to be enabled only when there is no Xposed or Xposed blocking fails. Try using Shizuku/Sui to prevent apps inside the freeform from popping out of the freeform to full screen. This function is still under testing, and there is no guarantee that the blocking will be successful, and it will cause problems such as screen flickering, freezing, etc.</string>
     <string name="category_floating">sidebar</string>
@@ -158,8 +156,6 @@
     <string name="freeform_dpi_dialog_title">Enter scale value</string>
     <string name="to_default">To default</string>
     <string name="recent_label">Running Freeform</string>
-    <string name="auto_scale_title">Auto Scale Freeform(Test)</string>
-    <string name="auto_scale_summary">Freeform can be zoomed in according to the free ratio</string>
     <string name="floating_alpha_title">Sidebar Transparency</string>
     <string name="recent_open_by_freeform">Open by Mi-Freeform</string>
 </resources>

@@ -17,10 +17,7 @@ import android.hardware.display.VirtualDisplay
 import android.hardware.input.IInputManager
 import android.net.Uri
 import android.os.Build
-import android.os.SystemClock
 import android.provider.Settings
-import android.util.DisplayMetrics
-import android.util.Log
 import android.view.*
 import android.view.animation.*
 import android.widget.Toast
@@ -41,7 +38,6 @@ import rikka.shizuku.SystemServiceHelper
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.*
-import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -106,31 +102,11 @@ class FreeformView(
         }
     }
 
-//    //屏幕监听
-//    private val displayListener = object : DisplayManager.DisplayListener {
-//        override fun onDisplayAdded(displayId: Int) {}
-//
-//        override fun onDisplayRemoved(displayId: Int) {}
-//
-//        override fun onDisplayChanged(displayId: Int) {
-//            if (displayId == Display.DEFAULT_DISPLAY) {
-//                val tempScreenRotation = defaultDisplay.rotation
-//                if (tempScreenRotation != screenRotation) {
-//                    screenRotation = tempScreenRotation
-//                    onScreenOrientationChanged()
-//                }
-//            }
-//        }
-//    }
-
     private val screenListener = ScreenListener(context)
 
     //触摸监听
     private val touchListener = TouchListener()
     private val touchListenerPreQ = TouchListenerPreQ()
-
-    //小窗自由缩放处理
-    private val scaleTouchListenerAuto = ScaleTouchListenerAuto()
 
     //屏幕宽高，不保证大小
     private var realScreenWidth = 0
@@ -177,37 +153,9 @@ class FreeformView(
     private var goFloatScale = 0.6f
     private var goFullScale = 0.9f
 
-    private var beforeScaleHeight = freeformHeight
     //缩放比例
     private var scaleX: Float = 1f
     private var scaleY: Float = 1f
-
-    private val leftGestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        override fun onSingleTapUp(e: MotionEvent): Boolean {
-            destroy()
-            return true
-        }
-
-        override fun onLongPress(e: MotionEvent) {
-            moveTaskToDefaultDisplay()
-        }
-    })
-
-    private val rightGestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        override fun onSingleTapUp(e: MotionEvent): Boolean {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                MiFreeform.me?.getControlService()?.pressBack(virtualDisplay.display.displayId)
-            } else {
-                pressBackPreQ()
-            }
-
-            return true
-        }
-
-        override fun onLongPress(e: MotionEvent) {
-            toBackstage()
-        }
-    })
 
     //新增 手动调整小窗方向 q220904.7
     private val middleGestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
@@ -269,7 +217,6 @@ class FreeformView(
             }
         }
 
-    private val hangUpTipSize = context.resources.getDimension(R.dimen.hang_up_tip_size)
     //是否处于挂起状态
     private var isHangUp = false
     //挂起位置，0：是否在左，1：是否在上
@@ -300,7 +247,6 @@ class FreeformView(
 
     private fun initConfig() {
         config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
-        //config.widthHeightRatio = ...
 
         realScreenWidth = context.resources.displayMetrics.widthPixels
         realScreenHeight = context.resources.displayMetrics.heightPixels
@@ -319,7 +265,6 @@ class FreeformView(
         freeformWidth = ((freeformHeight + cardWidthMargin) * config.widthHeightRatio).roundToInt()
 
         //优化 QQ和微信也支持缩放了 q220917.1
-        //freeformScreenHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
         freeformScreenHeight = (min(realScreenHeight, realScreenWidth) / config.widthHeightRatio).roundToInt()
         if (!config.useCustomConfig) {
             freeformScreenHeight -=
@@ -336,28 +281,6 @@ class FreeformView(
         //---------------客制化配置-----------------
 
         config.rememberPosition = viewModel.getBooleanSp("remember_freeform_position", false)
-        if (config.rememberPosition) {
-            config.rememberX = if (FreeformHelper.screenIsPortrait(screenRotation)) {
-                viewModel.getIntSp(REMEMBER_X, 0)
-            } else {
-                viewModel.getIntSp(REMEMBER_LAND_X, 0)
-            }
-            config.rememberY = if (FreeformHelper.screenIsPortrait(screenRotation)) {
-                viewModel.getIntSp(REMEMBER_Y, 0)
-            } else {
-                viewModel.getIntSp(REMEMBER_LAND_Y, 0)
-            }
-            var rememberHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) {
-                viewModel.getIntSp(REMEMBER_HEIGHT, freeformHeight)
-            } else {
-                viewModel.getIntSp(REMEMBER_LAND_HEIGHT, freeformHeight)
-            }
-            //修复 尝试修复记录的小窗大小异常的问题 q220904.1
-            rememberHeight = min(max(MIN_HEIGHT, rememberHeight), config.maxHeight)
-            freeformHeight = rememberHeight
-            freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
-            scaleX = freeformHeight / maxFreeformScreenSize.toFloat()
-        }
         config.floatViewSize = (viewModel.getIntSp("freeform_float_view_size", 20)) / 100.toFloat()
 
         hangUpViewHeight = (rootHeight * config.floatViewSize).roundToInt()
@@ -369,9 +292,7 @@ class FreeformView(
         scaleY = (realScreenHeight - cardHeightMargin) / freeformScreenHeight.toFloat()
 
         config.useSuiRefuseToFullScreen = viewModel.getBooleanSp("use_sui_refuse_to_fullscreen", false)
-        config.changeDpi = viewModel.getBooleanSp("change_dpi", false)
         config.manualAdjustFreeformRotation = viewModel.getBooleanSp("manual_adjust_freeform_rotation", false)
-        config.autoScale = viewModel.getBooleanSp("auto_scale", false)
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -382,13 +303,6 @@ class FreeformView(
         binding.bottomBar.middleView.apply {
             visibility = View.VISIBLE
             setOnTouchListener(this@FreeformView)
-        }
-        if (config.autoScale) {
-            binding.leftScale.setOnTouchListener(scaleTouchListenerAuto)
-            binding.rightScale.setOnTouchListener(scaleTouchListenerAuto)
-        } else {
-            binding.leftScale.setOnTouchListener(this)
-            binding.rightScale.setOnTouchListener(this)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -708,39 +622,6 @@ class FreeformView(
 
         config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
 
-        //该赋值是不需要的，maxFreeformScreenSize只需要与max(freeformScreenHeight, freeformScreenWidth)同步即可 q220908.1
-        //maxFreeformScreenSize = config.maxHeight
-
-        if (config.changeDpi) {
-            freeformScreenHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
-            freeformScreenHeight -=
-                if (FreeformHelper.screenIsPortrait(screenRotation)) viewModel.getIntSp("freeform_scale_portrait", 0)
-                else viewModel.getIntSp("freeform_scale_landscape", 0)
-            freeformScreenHeight = max(1, freeformScreenHeight)
-            freeformScreenWidth = (freeformScreenHeight * config.widthHeightRatio).roundToInt()
-            maxFreeformScreenSize = freeformScreenHeight
-            minFreeformScreenSize = freeformScreenWidth
-            scaleX = freeformHeight / maxFreeformScreenSize.toFloat()
-            scaleY = scaleX
-
-            //修复转屏后屏幕dpi不正确的问题 q220908.2
-            val tempFreeformScreenHeight = freeformScreenHeight
-            val tempFreeformScreenWidth = freeformScreenWidth
-
-            maxFreeformScreenSize = tempFreeformScreenHeight
-            minFreeformScreenSize = tempFreeformScreenWidth
-
-            if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_PORTRAIT) {
-                freeformScreenHeight = max(tempFreeformScreenHeight, tempFreeformScreenWidth)
-                freeformScreenWidth = min(tempFreeformScreenHeight, tempFreeformScreenWidth)
-            } else {
-                freeformScreenHeight = min(tempFreeformScreenHeight, tempFreeformScreenWidth)
-                freeformScreenWidth = max(tempFreeformScreenHeight, tempFreeformScreenWidth)
-            }
-
-            resizeVirtualDisplay()
-        }
-
         rootHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) realScreenHeight else realScreenWidth
         rootWidth = if (FreeformHelper.screenIsPortrait(screenRotation)) realScreenWidth else realScreenHeight
 
@@ -873,15 +754,6 @@ class FreeformView(
         }
     }
 
-    /**
-     * 隐藏小窗到后台
-     */
-    private fun toBackstage() {
-        windowManager.removeViewImmediate(binding.root)
-        FreeformHelper.removeFreeformFromSet(this)
-        FreeformHelper.addMiniFreeformToSet(this)
-        isBackstage = true
-    }
 
     /**
      * 从后台恢复
@@ -891,24 +763,6 @@ class FreeformView(
         FreeformHelper.removeMiniFreeformFromSet(this)
         FreeformHelper.addFreeformToSet(this)
         isBackstage = false
-    }
-
-    /**
-     * 尝试将小窗内容全屏
-     */
-    private fun moveTaskToDefaultDisplay() {
-        isDestroy = true
-        virtualDisplay.resize(realScreenWidth, realScreenHeight, FreeformHelper.getScreenDpi(context))
-        MiFreeform.me?.getControlService()?.execShell("am start -n ${config.packageName}/${config.activityName} --user ${config.userId} --display 0", false)
-        destroy()
-    }
-
-    /**
-     * 通知windowManager刷新缩放后的界面
-     */
-    private fun notifyWindowScale() {
-        resetScale()
-        updateWindowSize(false)
     }
 
     private fun refreshScale() {
@@ -963,20 +817,8 @@ class FreeformView(
             R.id.root -> {
                 backgroundGestureDetector.onTouchEvent(event)
             }
-            //左键监听，单击关闭，长按全屏
-            R.id.leftView -> {
-                if (touchId == R.id.leftView) leftGestureDetector.onTouchEvent(event)
-            }
             R.id.middleView -> {
                 middleGestureDetector.onTouchEvent(event)
-            }
-            //右键监听，点击返回，长按后台挂起
-            R.id.rightView -> {
-                if (touchId == R.id.rightView) rightGestureDetector.onTouchEvent(event)
-            }
-
-            R.id.leftScale, R.id.rightScale -> {
-                beforeScaleHeight = freeformHeight
             }
         }
     }
@@ -985,13 +827,6 @@ class FreeformView(
         when(v.id) {
             R.id.root -> {
                 backgroundGestureDetector.onTouchEvent(event)
-            }
-            //左键监听，单击关闭，双击全屏
-            R.id.leftView -> {
-                if (touchId == R.id.leftView) leftGestureDetector.onTouchEvent(event)
-            }
-            R.id.rightView -> {
-                if (touchId == R.id.rightView) rightGestureDetector.onTouchEvent(event)
             }
             R.id.middleView -> {
                 if (touchId == R.id.middleView) {
@@ -1015,24 +850,6 @@ class FreeformView(
                     lastY = event.rawY
                 }
             }
-            R.id.leftScale -> {
-                if (touchId == R.id.leftScale) {
-                    val dx = event.rawX - lastX
-                    val dy = event.rawY - lastY
-                    handleScaleLeft(dx, dy)
-                    lastX = event.rawX
-                    lastY = event.rawY
-                }
-            }
-            R.id.rightScale -> {
-                if (touchId == R.id.rightScale) {
-                    val dx = event.rawX - lastX
-                    val dy = event.rawY - lastY
-                    handleScaleRight(dx, dy)
-                    lastX = event.rawX
-                    lastY = event.rawY
-                }
-            }
         }
     }
 
@@ -1048,278 +865,11 @@ class FreeformView(
             R.id.sideView -> {
                 notifyToFloat()
             }
-            //左键监听，单击关闭，双击全屏
-            R.id.leftView -> {
-                if (touchId == R.id.leftView) leftGestureDetector.onTouchEvent(event)
-            }
-            //右按键返回
-            R.id.rightView -> {
-                if (touchId == R.id.rightView) rightGestureDetector.onTouchEvent(event)
-            }
-            R.id.leftScale, R.id.rightScale -> {
-                notifyWindowScale()
-            }
         }
         touchId = -1
     }
 
-    /**
-     * 缩放处理
-     * 优化 尝试更加流畅的缩放动画 q220904.8
-     */
-    private fun handleScaleLeft(dx: Float, dy: Float) {
-        //缩小
-        if (dx > 0 && dy < 0) {
-            val tempHeight = freeformHeight + dy
-            val tempWidth = freeformWidth - dx
-            //在尺寸内
-            if (tempHeight > MIN_HEIGHT && tempHeight <= config.maxHeight && tempWidth > MIN_WIDTH && tempWidth < realScreenWidth) {
-                //优化 尝试更加跟手的缩放操作 q220904.6
-                val maxMove = max(abs(dx), abs(dy)).roundToInt()
-                freeformHeight -= maxMove
-                freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
-
-                if (freeformHeight > beforeScaleHeight) {
-                    beforeScaleHeight = freeformHeight
-                    notifyWindowScale()
-                } else {
-                    mScaleX = freeformHeight / beforeScaleHeight.toFloat()
-                    mScaleY = freeformWidth / realScreenWidth.toFloat()
-                    binding.root.scaleX = mScaleX
-                    binding.root.scaleY = mScaleY
-                }
-            }
-        }
-        //放大
-        else if (dx < 0 && dy > 0) {
-            val tempHeight = freeformHeight + dy
-            val tempWidth = freeformWidth - dx
-            //在尺寸内
-            if (tempHeight > MIN_HEIGHT && tempHeight <= config.maxHeight && tempWidth > MIN_WIDTH && tempWidth < realScreenWidth) {
-                val maxMove = max(abs(dx), abs(dy)).roundToInt()
-                freeformHeight += maxMove
-                freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
-
-                if (freeformHeight > beforeScaleHeight) {
-                    beforeScaleHeight = freeformHeight
-                    notifyWindowScale()
-                } else {
-                    mScaleX = freeformHeight / beforeScaleHeight.toFloat()
-                    mScaleY = freeformWidth / realScreenWidth.toFloat()
-                    binding.root.scaleX = mScaleX
-                    binding.root.scaleY = mScaleY
-                }
-            }
-        }
-    }
-
-    /**
-     * 缩放处理
-     */
-    private fun handleScaleRight(dx: Float, dy: Float) {
-        //缩小
-        if (dx < 0 && dy < 0) {
-            val tempHeight = freeformHeight + dy
-            val tempWidth = freeformWidth + dx
-            //在尺寸内
-            if (tempHeight > MIN_HEIGHT && tempHeight <= config.maxHeight && tempWidth > MIN_WIDTH && tempWidth < realScreenWidth) {
-                val maxMove = max(abs(dx), abs(dy)).roundToInt()
-                freeformHeight -= maxMove
-                freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
-
-                if (freeformHeight > beforeScaleHeight) {
-                    beforeScaleHeight = freeformHeight
-                    notifyWindowScale()
-                } else {
-                    mScaleX = freeformHeight / beforeScaleHeight.toFloat()
-                    mScaleY = freeformWidth / realScreenWidth.toFloat()
-                    binding.root.scaleX = mScaleX
-                    binding.root.scaleY = mScaleY
-                }
-            }
-        }
-        //放大
-        else if (dx > 0 && dy > 0) {
-            val tempHeight = freeformHeight + dy
-            val tempWidth = freeformWidth + dx
-            //在尺寸内
-            if (tempHeight > MIN_HEIGHT && tempHeight <= config.maxHeight && tempWidth > MIN_WIDTH && tempWidth < realScreenWidth) {
-                val maxMove = max(abs(dx), abs(dy)).roundToInt()
-                freeformHeight += maxMove
-                freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
-
-                if (freeformHeight > beforeScaleHeight) {
-                    beforeScaleHeight = freeformHeight
-                    notifyWindowScale()
-                } else {
-                    mScaleX = freeformHeight / beforeScaleHeight.toFloat()
-                    mScaleY = freeformWidth / realScreenWidth.toFloat()
-                    binding.freeformRoot.scaleX = mScaleX
-                    binding.freeformRoot.scaleY = mScaleY
-                }
-            }
-        }
-    }
-
-    /**
-     * 移动位置处理
-     */
-    private fun handleMove(dx: Float, dy: Float) {
-        windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
-            x = (x + dx).roundToInt()
-            y = ((y + dy).roundToInt())
-        })
-    }
-
     private var setDisplayIdMethod: Method? = null
-
-    /**
-     * 挂起处理
-     */
-    private fun handleHangUp(rawX: Float, rawY: Float) {
-
-        if (rawY >= realScreenHeight - hangUpTipSize) {
-            //左下角挂起
-            if (rawX <= hangUpTipSize) {
-                hangUpPosition[0] = true
-                hangUpPosition[1] = false
-                toHangUp()
-            }
-            //右下角挂起
-            else if (rawX >= realScreenWidth - hangUpTipSize) {
-                hangUpPosition[0] = false
-                hangUpPosition[1] = false
-                toHangUp()
-            }
-        } else if (rawY <= hangUpTipSize) {
-            //左上角挂起
-            if (rawX <= hangUpTipSize) {
-                hangUpPosition[0] = true
-                hangUpPosition[1] = true
-                toHangUp()
-            }
-            //右上角挂起
-            else if (rawX >= realScreenWidth - hangUpTipSize) {
-                hangUpPosition[0] = false
-                hangUpPosition[1] = true
-                toHangUp()
-            }
-        }
-    }
-
-    /**
-     * 挂起
-     */
-    @SuppressLint("ClickableViewAccessibility")
-    private fun toHangUp() {
-        //隐藏底栏
-
-        //将阴影预留调整为0，可以防止挂起时缩放比例有问题 q220925.1
-        val layoutParams = binding.freeformRoot.layoutParams as ConstraintLayout.LayoutParams
-        layoutParams.bottomMargin = 0
-        layoutParams.topMargin = 0
-        binding.freeformRoot.layoutParams = layoutParams
-
-        //阻止控制
-        binding.leftScale.setOnTouchListener(null)
-        binding.rightScale.setOnTouchListener(null)
-
-        binding.textureView.setOnTouchListener { _, event ->
-            if (event.action == MotionEvent.ACTION_UP) {
-
-                val layoutParams = binding.freeformRoot.layoutParams as ConstraintLayout.LayoutParams
-                layoutParams.bottomMargin = context.resources.getDimension(R.dimen.freeform_shadow_height).roundToInt()
-                layoutParams.topMargin = context.resources.getDimension(R.dimen.freeform_shadow).roundToInt()
-                binding.freeformRoot.layoutParams = layoutParams
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    binding.textureView.setOnTouchListener(touchListener)
-                } else {
-                    binding.textureView.setOnTouchListener(touchListenerPreQ)
-                }
-                if (config.autoScale) {
-                    binding.leftScale.setOnTouchListener(scaleTouchListenerAuto)
-                    binding.rightScale.setOnTouchListener(scaleTouchListenerAuto)
-                } else {
-                    binding.leftScale.setOnTouchListener(this)
-                    binding.rightScale.setOnTouchListener(this)
-                }
-
-                if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_PORTRAIT) {
-                    windowLayoutParams.apply {
-                        //修复 挂起后再恢复小窗，小窗缩放异常的问题 q220904.4
-                        width = freeformWidth
-                        height = freeformHeight + context.resources.getDimension(R.dimen.top_bar_height).toInt() + context.resources.getDimension(R.dimen.bottom_bar_height).toInt() + context.resources.getDimension(R.dimen.freeform_shadow).toInt()
-                        x = 0
-                        y = 0
-                    }
-                    //横屏移动到屏幕左侧显示小窗
-                    if (!FreeformHelper.screenIsPortrait(screenRotation)) {
-                        windowLayoutParams.apply {
-                            x = (width - realScreenWidth) / 2
-                            //往上移动一些
-                            y = 0
-                        }
-                    }
-
-                } else {
-                    windowLayoutParams.apply {
-                        width = freeformHeight
-                        height = freeformWidth + context.resources.getDimension(R.dimen.bottom_bar_height).toInt() + context.resources.getDimension(R.dimen.freeform_shadow).toInt()
-                        x = 0
-                        y = 0
-                    }
-                    //横屏移动到屏幕左侧显示小窗
-                    if (!FreeformHelper.screenIsPortrait(screenRotation)) {
-                        windowLayoutParams.apply {
-                            x = (width - realScreenWidth) / 2
-                            //往上移动一些
-                            y = 0
-                        }
-                    }
-                }
-                windowLayoutParams.apply {
-                    dimAmount = 0.2f
-                }
-                windowManager.updateViewLayout(binding.root, windowLayoutParams)
-                isHangUp = false
-
-                //解冻屏幕方向
-                //iWindowManager?.thawDisplayRotation(virtualDisplay.display.displayId)
-
-                setWindowNoUpdateAnimation()
-            }
-            true
-        }
-
-        setWindowEnableUpdateAnimation()
-        windowLayoutParams.apply {
-            dimAmount = 0f
-        }
-        if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_PORTRAIT) {
-            windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
-                width = hangUpViewWidth
-                height = hangUpViewHeight
-                x = if (hangUpPosition[0]) ((realScreenWidth - hangUpViewHeight * config.widthHeightRatio) / -2).roundToInt() else ((realScreenWidth - hangUpViewHeight * config.widthHeightRatio) / 2).roundToInt()
-                y = if (hangUpPosition[1]) (hangUpViewHeight - realScreenHeight) / 2 else (realScreenHeight - hangUpViewHeight) / 2
-            })
-        } else {
-            windowManager.updateViewLayout(
-                binding.root,
-                windowLayoutParams.apply {
-                    width = hangUpViewHeight
-                    height = hangUpViewWidth
-                    //优化 横屏小窗挂起的位置 q220903.1
-                    x = if (hangUpPosition[0]) (realScreenWidth - hangUpViewHeight) / -2 else (realScreenWidth - hangUpViewHeight) / 2
-                    y = if (hangUpPosition[1]) ((hangUpViewHeight * config.widthHeightRatio - realScreenHeight) / 2).roundToInt() else ((realScreenHeight - hangUpViewHeight * config.widthHeightRatio) / 2).roundToInt()
-                }
-            )
-        }
-
-        //挂起时尝试冻结屏幕方向。可能无效 q220904.4
-        //iWindowManager?.freezeDisplayRotation(virtualDisplay.display.displayId, -1)
-        isHangUp = true
-    }
 
     private fun genFloatViewLocation(): IntArray {
         return intArrayOf(
@@ -2055,35 +1605,6 @@ class FreeformView(
         }
     })
 
-    private fun pressBackPreQ() {
-        val down = KeyEvent(
-            SystemClock.uptimeMillis(),
-            SystemClock.uptimeMillis(),
-            KeyEvent.ACTION_DOWN,
-            KeyEvent.KEYCODE_BACK,
-            0
-        )
-        val up = KeyEvent(
-            SystemClock.uptimeMillis(),
-            SystemClock.uptimeMillis(),
-            KeyEvent.ACTION_UP,
-            KeyEvent.KEYCODE_BACK,
-            0
-        )
-
-        try {
-            KeyEvent::class.java.getMethod("setSource", Int::class.javaPrimitiveType)
-                .invoke(down, InputDevice.SOURCE_KEYBOARD)
-            inputManager?.injectInputEvent(down, virtualDisplay.display.displayId)
-
-            KeyEvent::class.java.getMethod("setSource", Int::class.javaPrimitiveType)
-                .invoke(up, InputDevice.SOURCE_KEYBOARD)
-            inputManager?.injectInputEvent(up, virtualDisplay.display.displayId)
-        } catch (e: Exception) {
-
-        }
-    }
-
     override fun destroy() {
         //记录位置
         if (viewModel.getBooleanSp("remember_freeform_position", false)) {
@@ -2150,9 +1671,6 @@ class FreeformView(
                 if (config.packageName == YOUTUBE) {
                     config.activityName = YOUTUBE_ACTIVITY
                 }
-//                if (config.packageName == QQ) {
-//                    config.freeformDpi = FreeformHelper.getScreenDpi(context)
-//                }
                 initView()
             }
         }
@@ -2238,7 +1756,6 @@ class FreeformView(
                 }
                 MotionEvent.ACTION_UP -> {
                     touchId = -1
-                    //handleTouch2(event)
                 }
             }
             return true
@@ -2338,90 +1855,9 @@ class FreeformView(
         }
     }
 
-    /**
-     * 支持自由缩放的缩放监听
-     */
-    private inner class ScaleTouchListenerAuto : View.OnTouchListener {
-
-        private var lastX = 0f
-        private var lastY = 0f
-
-        @SuppressLint("ClickableViewAccessibility")
-        override fun onTouch(v: View, event: MotionEvent): Boolean {
-            when(event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    if (FreeformHelper.isShowingFirst(this@FreeformView)) {
-                        lastX = event.rawX
-                        lastY = event.rawY
-                        if (touchId == -1) touchId = v.id
-                    } else {
-                        //不是处于最上层要移动到最上层
-                        moveToFirst()
-                    }
-
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    val dx = event.rawX - lastX
-                    val dy = event.rawY - lastY
-                    when(v.id) {
-                        R.id.leftScale -> handleScaleLeft(dx, dy)
-                        R.id.rightScale -> handleScaleRight(dx, dy)
-                    }
-                    lastX = event.rawX
-                    lastY = event.rawY
-                }
-                MotionEvent.ACTION_UP -> {
-                    touchId = -1
-
-                    freeformScreenWidth = (freeformScreenHeight * (freeformWidth / freeformHeight.toFloat())).roundToInt()
-                    minFreeformScreenSize = freeformScreenWidth
-                    scaleY = freeformWidth / minFreeformScreenSize.toFloat()
-                    resizeVirtualDisplay()
-                    //修复 自由调整比例时小窗比例可能不刷新的问题 q220925.2
-                    binding.textureView.surfaceTextureListener?.onSurfaceTextureSizeChanged(binding.textureView.surfaceTexture!!, freeformScreenWidth, freeformScreenHeight)
-                }
-            }
-
-            return true
-        }
-
-        private fun handleScaleLeft(dx: Float, dy: Float) {
-            val tempHeight = freeformHeight + dy
-            val tempWidth = freeformWidth - dx
-            //在尺寸内
-            if (tempHeight > MIN_HEIGHT && tempHeight <= config.maxHeight && tempWidth > MIN_WIDTH && tempWidth < realScreenWidth) {
-                freeformHeight = tempHeight.roundToInt()
-                freeformWidth = tempWidth.roundToInt()
-
-                notifyWindowScale()
-            }
-        }
-
-        /**
-         * 缩放处理
-         */
-        private fun handleScaleRight(dx: Float, dy: Float) {
-            val tempHeight = freeformHeight + dy
-            val tempWidth = freeformWidth + dx
-            //在尺寸内
-            if (tempHeight > MIN_HEIGHT && tempHeight <= config.maxHeight && tempWidth > MIN_WIDTH && tempWidth < realScreenWidth) {
-                freeformHeight = tempHeight.roundToInt()
-                freeformWidth = tempWidth.roundToInt()
-
-                notifyWindowScale()
-            }
-        }
-    }
-
     companion object {
         private const val TAG = "FreeformView"
 
-        private const val MIN_WIDTH = 400
-        private const val MIN_HEIGHT = 600
-
-        private const val HANGUP_HEIGHT = 500
-
-        private const val QQ = "com.tencent.mobileqq"
         private const val YOUTUBE = "com.google.android.youtube"
         private const val YOUTUBE_ACTIVITY = "com.google.android.youtube.HomeActivity"
 
