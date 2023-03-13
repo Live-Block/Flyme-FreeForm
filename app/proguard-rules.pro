@@ -31,6 +31,3 @@
 
 #避免对AIDL混淆
 -keep class * implements android.os.IInterface {*;}
-
--dontwarn com.tencent.bugly.**
--keep public class com.tencent.bugly.**{*;}
