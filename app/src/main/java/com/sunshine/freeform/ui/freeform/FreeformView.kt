@@ -261,8 +261,6 @@ class FreeformView(
         rootWidth = if (FreeformHelper.screenIsPortrait(screenRotation)) realScreenWidth else realScreenHeight
 
         config.freeformDpi = FreeformHelper.getScreenDpi(context)
-        freeformHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) (config.maxHeight * 0.75).roundToInt() else (config.maxHeight * 0.9).roundToInt()
-        freeformWidth = ((freeformHeight + cardWidthMargin) * config.widthHeightRatio).roundToInt()
 
         //优化 QQ和微信也支持缩放了 q220917.1
         freeformScreenHeight = (min(realScreenHeight, realScreenWidth) / config.widthHeightRatio).roundToInt()
@@ -311,11 +309,6 @@ class FreeformView(
             binding.textureView.setOnTouchListener(touchListenerPreQ)
         }
 
-        goFloatScale = (freeformHeight * 0.8f) / rootHeight
-        goFullScale = (freeformHeight * 1.1f) / rootHeight
-
-        freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
-
         if (!FreeformHelper.screenIsPortrait(screenRotation)) {
             hangUpPosition[0] = true
             binding.apply {
@@ -333,8 +326,12 @@ class FreeformView(
             }
             cardHeightMargin = 0f
             cardWidthMargin = barHeight
-            freeformWidth = ((freeformHeight + cardWidthMargin) * config.widthHeightRatio).roundToInt()
         }
+
+        refreshFreeformSize()
+
+        goFloatScale = (freeformHeight * 0.8f) / rootHeight
+        goFullScale = (freeformHeight * 1.1f) / rootHeight
 
         resetScale()
 
@@ -469,8 +466,8 @@ class FreeformView(
             }
         } else {
             windowLayoutParams.apply {
-                width = realScreenHeight
-                height = realScreenWidth
+                width = rootHeight
+                height = rootWidth
             }
             scaleY = realScreenWidth / freeformScreenWidth.toFloat()
             scaleX = (realScreenHeight - cardHeightMargin) / freeformScreenHeight.toFloat()
@@ -628,8 +625,7 @@ class FreeformView(
         cardHeightMargin = if (FreeformHelper.screenIsPortrait(screenRotation)) (barHeight + freeformShadow) else 0f
         cardWidthMargin = if (FreeformHelper.screenIsPortrait(screenRotation)) 0f else barHeight
 
-        freeformHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) (config.maxHeight * 0.75).roundToInt() else (config.maxHeight * 0.9).roundToInt()
-        freeformWidth = ((freeformHeight + cardWidthMargin) * config.widthHeightRatio).roundToInt()
+        refreshFreeformSize()
 
         hangUpViewHeight = (rootHeight * config.floatViewSize).roundToInt()
         hangUpViewWidth = (hangUpViewHeight * config.widthHeightRatio).roundToInt()
@@ -765,6 +761,12 @@ class FreeformView(
         isBackstage = false
     }
 
+    private fun refreshFreeformSize() {
+        freeformHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) (config.maxHeight * 0.75).roundToInt() else (config.maxHeight * 0.9).roundToInt()
+        freeformHeight += cardHeightMargin.roundToInt()
+        freeformWidth = ((freeformHeight + cardWidthMargin) * config.widthHeightRatio).roundToInt()
+    }
+
     private fun refreshScale() {
         mScaleX = freeformWidth / rootWidth.toFloat()
         mScaleY = freeformHeight / rootHeight.toFloat()
@@ -881,8 +883,7 @@ class FreeformView(
     }
 
     private fun getRestoreFreeformScale(): FloatArray {
-        freeformHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) (config.maxHeight * 0.75).roundToInt() else (config.maxHeight * 0.9).roundToInt()
-        freeformWidth = ((freeformHeight + cardWidthMargin) * config.widthHeightRatio).roundToInt()
+        refreshFreeformSize()
         return floatArrayOf(
             freeformWidth / rootWidth.toFloat(),
             freeformHeight / rootHeight.toFloat(),
