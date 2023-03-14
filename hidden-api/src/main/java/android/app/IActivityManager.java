@@ -3,6 +3,7 @@ package android.app;
 import android.content.Intent;
 import android.content.IIntentSender;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IInterface;
 
@@ -20,4 +21,17 @@ public interface IActivityManager extends IInterface {
     List<ActivityManager.RunningTaskInfo> getTasks(int maxNum);
     Intent getIntentForIntentSender(IIntentSender sender);
 
+    int startActivityAsUserWithFeature(
+            IApplicationThread caller,
+            String callingPackage,
+            String callingFeatureId,
+            Intent intent,
+            String resolvedType,
+            IBinder resultTo,
+            String resultWho,
+            int requestCode,
+            int flags,
+            ProfilerInfo profilerInfo,
+            Bundle options,
+            int userId);
 }

@@ -8,6 +8,7 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.*
 import android.content.Context
+import android.content.ContextHidden
 import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.graphics.PixelFormat
@@ -26,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.sunshine.freeform.R
 import com.sunshine.freeform.app.MiFreeform
 import com.sunshine.freeform.databinding.ViewFreeformFlymeBinding
+import dev.rikka.tools.refine.Refine
 import kotlinx.android.synthetic.main.view_bar.view.*
 import kotlinx.android.synthetic.main.view_bar_flyme.view.*
 import kotlinx.android.synthetic.main.view_floating_button.view.*
@@ -344,7 +346,7 @@ class FreeformView(
     private fun initDisplay() {
         try {
             virtualDisplay = displayManager.createVirtualDisplay(
-                "MiFreeform@${config.packageName}@${config.userId}",
+                "MiFreeform@${config.packageName}@${config.intent.toString()}@${config.userId}",
                 freeformScreenWidth,
                 freeformScreenHeight,
                 config.freeformDpi,
@@ -421,6 +423,34 @@ class FreeformView(
                 virtualDisplay.surface = Surface(surface)
 
                 if (firstInit) {
+                    if (config.intent != null) {
+                        val options = ActivityOptions.makeBasic().apply {
+                            launchDisplayId = virtualDisplay.display.displayId
+                        }
+                        var result = 0
+                        if (config.intent is Intent) {
+                            val intent = config.intent as Intent
+                            intent.flags += Intent.FLAG_ACTIVITY_NO_ANIMATION
+                            result = activityManager!!.startActivityAsUserWithFeature(
+                                null, context.packageName, null, intent,
+                                intent.type, null, null, 0, 0,
+                                null, options.toBundle(), config.userId
+                            )
+                        } else if (config.intent is PendingIntent) {
+                            val pendingIntent = Refine.unsafeCast<PendingIntentHidden>(config.intent)
+                            result = pendingIntent.sendAndReturnResult(
+                                context, 0, null, null,
+                                null, null, options.toBundle()
+                            )
+                        }
+                        if (result < 0) {
+                            Toast.makeText(context, "Start Failed Result Code: $result", Toast.LENGTH_SHORT).show()
+                            destroy()
+                            return
+                        }
+                        FreeformHelper.addFreeformToSet(this@FreeformView)
+                        firstInit = false
+                    } else
                     if (MiFreeform.me?.getControlService()?.execShell("am start -n ${config.packageName}/${config.activityName} --user ${config.userId} --display ${virtualDisplay.display.displayId}", false) == true) {
                         FreeformHelper.addFreeformToSet(this@FreeformView)
                         firstInit = false
@@ -1123,7 +1153,32 @@ class FreeformView(
                         }
 
                         override fun onAnimationEnd(animation: Animator) {
-                            MiFreeform.me?.getControlService()?.execShell("am start -n ${config.packageName}/${config.activityName} --user ${config.userId} --display 0", false)
+                            if (config.intent != null) {
+                                val options = ActivityOptions.makeBasic().apply {
+                                    launchDisplayId = Display.DEFAULT_DISPLAY
+                                }
+                                var result = 0
+                                if (config.intent is Intent) {
+                                    val intent = config.intent as Intent
+                                    intent.flags += Intent.FLAG_ACTIVITY_NO_ANIMATION
+                                    result = activityManager!!.startActivityAsUserWithFeature(
+                                        null, context.packageName, null, intent,
+                                        intent.type, null, null, 0, 0,
+                                        null, options.toBundle(), config.userId
+                                    )
+                                } else if (config.intent is PendingIntent) {
+                                    val pendingIntent = Refine.unsafeCast<PendingIntentHidden>(config.intent)
+                                    result = pendingIntent.sendAndReturnResult(
+                                        context, 0, null, null,
+                                        null, null, options.toBundle()
+                                    )
+                                }
+                                if (result < 0) {
+                                    Toast.makeText(context, "Start Failed Result Code: $result", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                MiFreeform.me?.getControlService()?.execShell("am start -n ${config.packageName}/${config.activityName} --user ${config.userId} --display 0", false)
+                            }
                             destroy()
                         }
 
@@ -1654,7 +1709,21 @@ class FreeformView(
     }
 
     init {
+        if (config.packageName.isEmpty() && config.intent == null) {
+            Toast.makeText(context,"Missing Args Start Failed", Toast.LENGTH_SHORT).show()
+        } else
         if (MiFreeform.me?.getControlService()?.asBinder()?.pingBinder() == true) {
+            if (config.packageName.isEmpty()) {
+                if (config.intent is Intent) {
+                    val intent = config.intent as Intent
+                    if (intent.component != null) {
+                        config.packageName = intent.component!!.packageName
+                    }
+                }
+            }
+            if (config.userId == -1) {
+                config.userId = Refine.unsafeCast<ContextHidden>(context).userId
+            }
             //尝试恢复小窗状态
             //优化 如果小窗移动到屏幕外导致无法控制，可以尝试从侧边栏再次点击该应用以移动到屏幕中心 q220917.4
             if (FreeformHelper.isAppInFreeform(config.packageName, config.userId)) {

@@ -2,6 +2,7 @@ package com.sunshine.freeform.ui.floating
 
 import android.annotation.SuppressLint
 import android.app.ActivityOptions
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ApplicationInfo
@@ -131,9 +132,8 @@ class ChooseAppFloatingAdapter(
                     holder.click.setOnClickListener {
                         FreeformView(
                             FreeformConfig(
-                                packageName = packageName,
-                                activityName = activityName,
-                                userId = apps[position - 1 - miniFreeformSize].userId
+                                userId = apps[position - 1 - miniFreeformSize].userId,
+                                intent = Intent().setComponent(ComponentName(packageName, activityName))
                             ),
                             context
                         )

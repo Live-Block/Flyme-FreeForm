@@ -1,14 +1,18 @@
 package com.sunshine.freeform.ui.freeform
 
+import android.os.Parcelable
+
 data class FreeformConfig(
     //是否使用自定义配置而非在FreeformView中配置
     var useCustomConfig: Boolean = false,
     //运行程序包名
-    var packageName: String,
+    var packageName: String = "",
     //运行程序活动名
-    var activityName: String,
+    var activityName: String = "",
     //启动的userId
-    var userId: Int,
+    var userId: Int = -1,
+    // Intent
+    var intent: Parcelable? = null,
     //叠加层最大高度
     var maxHeight: Int = 1,
     //分辨率
