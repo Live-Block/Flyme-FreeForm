@@ -173,7 +173,7 @@ class FreeformView(
     })
 
     private val backgroundGestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
-        override fun onSingleTapUp(e: MotionEvent?): Boolean {
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
             if (!isHangUp) {
                 destroy()
             }
@@ -1009,7 +1009,7 @@ class FreeformView(
                         ),
                     )
                     addListener(object : AnimatorListener {
-                        override fun onAnimationStart(animation: Animator?) {
+                        override fun onAnimationStart(animation: Animator) {
                             val windowCoordinate = intArrayOf(
                                 windowLayoutParams.x,
                                 windowLayoutParams.y,
@@ -1038,16 +1038,16 @@ class FreeformView(
                                 duration = 600
                                 interpolator = OvershootInterpolator(1.5f)
                                 addListener(object : AnimatorListener {
-                                    override fun onAnimationStart(animation: Animator?) {
+                                    override fun onAnimationStart(animation: Animator) {
                                         binding.textureView.setOnTouchListener(null)
                                         AnimatorSet().apply {
                                             duration = 100
                                             startDelay = 200
                                             addListener(object :AnimatorListener {
-                                                override fun onAnimationStart(animation: Animator?) {
+                                                override fun onAnimationStart(animation: Animator) {
                                                 }
 
-                                                override fun onAnimationEnd(animation: Animator?) {
+                                                override fun onAnimationEnd(animation: Animator) {
                                                     binding.cardRoot.radius = context.resources.getDimension(R.dimen.card_corner_radius) * scaleX
                                                     windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
                                                         height = (rootHeight * scaleY).roundToInt()
@@ -1058,10 +1058,10 @@ class FreeformView(
                                                     binding.freeformRoot.scaleX = 1f
                                                 }
 
-                                                override fun onAnimationCancel(animation: Animator?) {
+                                                override fun onAnimationCancel(animation: Animator) {
                                                 }
 
-                                                override fun onAnimationRepeat(animation: Animator?) {
+                                                override fun onAnimationRepeat(animation: Animator) {
                                                 }
                                             })
                                             start()
@@ -1069,7 +1069,7 @@ class FreeformView(
                                         isHangUp = true
                                     }
 
-                                    override fun onAnimationEnd(animation: Animator?) {
+                                    override fun onAnimationEnd(animation: Animator) {
                                         mScaleX = scaleX
                                         mScaleY = scaleY
                                         binding.textureView.setOnTouchListener(floatViewTouchListener())
@@ -1077,10 +1077,10 @@ class FreeformView(
                                         setWindowEnableUpdateAnimation()
                                     }
 
-                                    override fun onAnimationCancel(animation: Animator?) {
+                                    override fun onAnimationCancel(animation: Animator) {
                                     }
 
-                                    override fun onAnimationRepeat(animation: Animator?) {
+                                    override fun onAnimationRepeat(animation: Animator) {
                                     }
 
                                 })
@@ -1088,13 +1088,13 @@ class FreeformView(
                             }
                         }
 
-                        override fun onAnimationEnd(animation: Animator?) {
+                        override fun onAnimationEnd(animation: Animator) {
                         }
 
-                        override fun onAnimationCancel(animation: Animator?) {
+                        override fun onAnimationCancel(animation: Animator) {
                         }
 
-                        override fun onAnimationRepeat(animation: Animator?) {
+                        override fun onAnimationRepeat(animation: Animator) {
                         }
                     })
                     duration = 200
@@ -1117,20 +1117,20 @@ class FreeformView(
                         ),
                     )
                     addListener(object : AnimatorListener {
-                        override fun onAnimationStart(animation: Animator?) {
+                        override fun onAnimationStart(animation: Animator) {
                             isDestroy = true
                             virtualDisplay.resize(realScreenWidth, realScreenHeight, FreeformHelper.getScreenDpi(context))
                         }
 
-                        override fun onAnimationEnd(animation: Animator?) {
+                        override fun onAnimationEnd(animation: Animator) {
                             MiFreeform.me?.getControlService()?.execShell("am start -n ${config.packageName}/${config.activityName} --user ${config.userId} --display 0", false)
                             destroy()
                         }
 
-                        override fun onAnimationCancel(animation: Animator?) {
+                        override fun onAnimationCancel(animation: Animator) {
                         }
 
-                        override fun onAnimationRepeat(animation: Animator?) {
+                        override fun onAnimationRepeat(animation: Animator) {
                         }
                     })
                     duration = 300
@@ -1164,7 +1164,7 @@ class FreeformView(
                 moveViewAnim(windowCoordinate, location),
             )
             addListener(object : AnimatorListener {
-                override fun onAnimationStart(animation: Animator?) {
+                override fun onAnimationStart(animation: Animator) {
                     if (reset) {
                         binding.freeformRoot.scaleY = 1f
                         binding.freeformRoot.scaleX = 1f
@@ -1175,13 +1175,13 @@ class FreeformView(
                     }
                 }
 
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {
+                override fun onAnimationCancel(animation: Animator) {
                 }
 
-                override fun onAnimationRepeat(animation: Animator?) {
+                override fun onAnimationRepeat(animation: Animator) {
                 }
             })
             duration = 600
@@ -1260,12 +1260,12 @@ class FreeformView(
 
         var isMoved : Boolean = false
 
-        override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        override fun onTouch(v: View?, event: MotionEvent): Boolean {
             if (v?.id == R.id.root) {
                 hideGestureDetector.onTouchEvent(event)
                 return true
             }
-            when(event?.action) {
+            when(event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     moveStartX = event.rawX
                     moveStartY = event.rawY
@@ -1333,7 +1333,7 @@ class FreeformView(
                                 moveViewAnim(windowCoordinate, location),
                             )
                             addListener(object : AnimatorListener {
-                                override fun onAnimationStart(animation: Animator?) {
+                                override fun onAnimationStart(animation: Animator) {
                                     if (position != 0) {
                                         isHidden = true
                                         hiddenView = LayoutInflater.from(context).inflate(R.layout.view_floating_button, null, false)
@@ -1361,17 +1361,17 @@ class FreeformView(
                                     }
                                 }
 
-                                override fun onAnimationEnd(animation: Animator?) {
+                                override fun onAnimationEnd(animation: Animator) {
                                     if (!isHidden) {
                                         lastFloatViewLocation = location
                                     }
                                     isMoved = false
                                 }
 
-                                override fun onAnimationCancel(animation: Animator?) {
+                                override fun onAnimationCancel(animation: Animator) {
                                 }
 
-                                override fun onAnimationRepeat(animation: Animator?) {
+                                override fun onAnimationRepeat(animation: Animator) {
                                 }
 
                             })
@@ -1431,34 +1431,34 @@ class FreeformView(
                 },
             )
             addListener(object : AnimatorListener {
-                override fun onAnimationStart(animation: Animator?) {
+                override fun onAnimationStart(animation: Animator) {
                     AnimatorSet().apply {
                         startDelay = 95
                         addListener(object : AnimatorListener {
-                            override fun onAnimationStart(animation: Animator?) {
+                            override fun onAnimationStart(animation: Animator) {
                                 AnimatorSet().apply {
                                     startDelay = 100
                                     addListener(object : AnimatorListener {
-                                        override fun onAnimationStart(animation: Animator?) {
+                                        override fun onAnimationStart(animation: Animator) {
                                         }
 
-                                        override fun onAnimationEnd(animation: Animator?) {
+                                        override fun onAnimationEnd(animation: Animator) {
                                             windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
                                                 alpha = 1f
                                             })
                                         }
 
-                                        override fun onAnimationCancel(animation: Animator?) {
+                                        override fun onAnimationCancel(animation: Animator) {
                                         }
 
-                                        override fun onAnimationRepeat(animation: Animator?) {
+                                        override fun onAnimationRepeat(animation: Animator) {
                                         }
                                     })
                                     start()
                                 }
                             }
 
-                            override fun onAnimationEnd(animation: Animator?) {
+                            override fun onAnimationEnd(animation: Animator) {
                                 windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
                                     height = rootHeight
                                     width = rootWidth
@@ -1470,10 +1470,10 @@ class FreeformView(
                                 binding.cardRoot.radius = context.resources.getDimension(R.dimen.card_corner_radius)
                             }
 
-                            override fun onAnimationCancel(animation: Animator?) {
+                            override fun onAnimationCancel(animation: Animator) {
                             }
 
-                            override fun onAnimationRepeat(animation: Animator?) {
+                            override fun onAnimationRepeat(animation: Animator) {
                             }
                         })
                         start()
@@ -1525,13 +1525,13 @@ class FreeformView(
                     }
                 }
 
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {
+                override fun onAnimationCancel(animation: Animator) {
                 }
 
-                override fun onAnimationRepeat(animation: Animator?) {
+                override fun onAnimationRepeat(animation: Animator) {
                 }
 
             })
@@ -1568,13 +1568,13 @@ class FreeformView(
             )
             addListener(object : AnimatorListener {
                 @SuppressLint("ClickableViewAccessibility")
-                override fun onAnimationStart(animation: Animator?) {
+                override fun onAnimationStart(animation: Animator) {
                     hiddenView.root.setOnTouchListener(null)
                     windowManager.removeView(hiddenView)
                     isHidden = false
                 }
 
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     if (!isHidden) {
                         lastFloatViewLocation = intArrayOf(
                             location[0],
@@ -1586,10 +1586,10 @@ class FreeformView(
                     }
                 }
 
-                override fun onAnimationCancel(animation: Animator?) {
+                override fun onAnimationCancel(animation: Animator) {
                 }
 
-                override fun onAnimationRepeat(animation: Animator?) {
+                override fun onAnimationRepeat(animation: Animator) {
                 }
 
             })
