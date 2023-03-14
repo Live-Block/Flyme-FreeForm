@@ -2,6 +2,7 @@ package com.sunshine.freeform.service.notification
 
 import android.annotation.SuppressLint
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -26,13 +27,14 @@ class NotificationIntentService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val targetPackage: String? = intent?.getStringExtra("packageName")
         val targetUserId: Int? = intent?.getIntExtra("userId", 0)
+        val targetIntent: PendingIntent? = intent?.getParcelableExtra(Intent.EXTRA_INTENT)
         if (targetPackage.isNullOrBlank() || targetUserId == null) stopSelf()
-        else startFreeForm(targetPackage, targetUserId)
+        else startFreeForm(targetPackage, targetUserId, targetIntent)
         return super.onStartCommand(intent, flags, startId)
     }
 
     @SuppressLint("WrongConstant")
-    private fun startFreeForm(targetPackage: String, targetUserId: Int) {
+    private fun startFreeForm(targetPackage: String, targetUserId: Int, targetIntent: PendingIntent?) {
         //关闭通知栏
         collapseStatusBar()
         //点击后清除小窗
@@ -53,9 +55,8 @@ class NotificationIntentService : Service() {
             val sp = getSharedPreferences(MiFreeform.APP_SETTINGS_NAME, Context.MODE_PRIVATE)
             FreeformView(
                 FreeformConfig(
-                    packageName = targetPackage,
-                    activityName = activityName,
                     userId = targetUserId,
+                    intent = targetIntent,
                     maxHeight = FreeformHelper.getDefaultHeight(this)
                 ),
                 this

@@ -123,9 +123,11 @@ class NotificationService : NotificationListenerService(),
         )
         notificationManager.createNotificationChannel(channel)
 
+        val contentIntent: PendingIntent = if (sbn.notification.contentIntent != null) sbn.notification.contentIntent else sbn.notification.fullScreenIntent
         val intent = Intent(this, NotificationIntentService::class.java)
         intent.putExtra("packageName", sbn.packageName)
         intent.putExtra("userId", UserHandle.getUserId(sbn.user))
+        intent.putExtra(Intent.EXTRA_INTENT, contentIntent)
         val pendingIntent = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         val freeFormButton = Notification.Action.Builder(smallIcon, getString(R.string.open_by_freeform), pendingIntent).build()
@@ -140,8 +142,10 @@ class NotificationService : NotificationListenerService(),
             .setSmallIcon(smallIcon)
             .setAutoCancel(true)
             .setContentIntent(sbn.notification.contentIntent)
-            .addAction(freeFormButton)
         if (largeIcon != null) notificationBuilder.setLargeIcon(largeIcon)
+        if (contentIntent.isActivity) {
+            notificationBuilder.addAction(freeFormButton)
+        }
         val notification = notificationBuilder.build()
         //点击通知后消失
         notification.flags = Notification.FLAG_AUTO_CANCEL
