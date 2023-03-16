@@ -56,6 +56,8 @@ class FreeformView(
     private var inputManager: IInputManager? = null
     private var iWindowManager: IWindowManager? = null
 
+    private val shell = "com.android.shell"
+
     //ViewModel
     private val viewModel = FreeformViewModel(context)
 
@@ -346,7 +348,7 @@ class FreeformView(
     private fun initDisplay() {
         try {
             virtualDisplay = displayManager.createVirtualDisplay(
-                "MiFreeform@${config.packageName}@${config.intent.toString()}@${config.userId}",
+                "MiFreeform@${config.packageName}@${config.userId}",
                 freeformScreenWidth,
                 freeformScreenHeight,
                 config.freeformDpi,
@@ -421,18 +423,18 @@ class FreeformView(
             ) {
                 surface.setDefaultBufferSize(freeformScreenWidth, freeformScreenHeight)
                 virtualDisplay.surface = Surface(surface)
+                val options = ActivityOptions.makeBasic().apply {
+                    launchDisplayId = virtualDisplay.display.displayId
+                }
 
                 if (firstInit) {
                     if (config.intent != null) {
-                        val options = ActivityOptions.makeBasic().apply {
-                            launchDisplayId = virtualDisplay.display.displayId
-                        }
                         var result = 0
                         if (config.intent is Intent) {
                             val intent = config.intent as Intent
-                            intent.flags += Intent.FLAG_ACTIVITY_NO_ANIMATION
+                            intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NO_ANIMATION
                             result = activityManager!!.startActivityAsUserWithFeature(
-                                null, context.packageName, null, intent,
+                                null, shell, null, intent,
                                 intent.type, null, null, 0, 0,
                                 null, options.toBundle(), config.userId
                             )
@@ -1160,9 +1162,9 @@ class FreeformView(
                                 var result = 0
                                 if (config.intent is Intent) {
                                     val intent = config.intent as Intent
-                                    intent.flags += Intent.FLAG_ACTIVITY_NO_ANIMATION
+                                    intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NO_ANIMATION
                                     result = activityManager!!.startActivityAsUserWithFeature(
-                                        null, context.packageName, null, intent,
+                                        null, shell, null, intent,
                                         intent.type, null, null, 0, 0,
                                         null, options.toBundle(), config.userId
                                     )
@@ -1719,6 +1721,9 @@ class FreeformView(
                     if (intent.component != null) {
                         config.packageName = intent.component!!.packageName
                     }
+                } else if (config.intent is PendingIntent) {
+                    val pendingIntent = config.intent as PendingIntent
+                    config.packageName = pendingIntent.creatorPackage!!
                 }
             }
             if (config.userId == -1) {
