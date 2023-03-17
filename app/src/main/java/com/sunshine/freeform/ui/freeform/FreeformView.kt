@@ -1498,33 +1498,12 @@ class FreeformView(
                         startDelay = 95
                         addListener(object : AnimatorListener {
                             override fun onAnimationStart(animation: Animator) {
-                                AnimatorSet().apply {
-                                    startDelay = 100
-                                    addListener(object : AnimatorListener {
-                                        override fun onAnimationStart(animation: Animator) {
-                                        }
-
-                                        override fun onAnimationEnd(animation: Animator) {
-                                            windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
-                                                alpha = 1f
-                                            })
-                                        }
-
-                                        override fun onAnimationCancel(animation: Animator) {
-                                        }
-
-                                        override fun onAnimationRepeat(animation: Animator) {
-                                        }
-                                    })
-                                    start()
-                                }
                             }
 
                             override fun onAnimationEnd(animation: Animator) {
                                 windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
                                     height = rootHeight
                                     width = rootWidth
-                                    alpha = 0f
                                 })
                                 binding.freeformRoot.scaleX = mScaleX
                                 binding.freeformRoot.scaleY = mScaleY
