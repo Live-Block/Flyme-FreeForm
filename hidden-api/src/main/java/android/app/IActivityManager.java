@@ -2,6 +2,7 @@ package android.app;
 
 import android.content.Intent;
 import android.content.IIntentSender;
+import android.content.IIntentReceiver;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -34,4 +35,15 @@ public interface IActivityManager extends IInterface {
             ProfilerInfo profilerInfo,
             Bundle options,
             int userId);
+
+    int sendIntentSender(
+            IIntentSender target,
+            IBinder whitelistToken,
+            int code,
+            Intent intent,
+            String resolvedType,
+            IIntentReceiver finishedReceiver,
+            String requiredPermission,
+            Bundle options);
+
 }

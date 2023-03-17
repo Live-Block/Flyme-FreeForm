@@ -440,16 +440,22 @@ class FreeformView(
                             )
                         } else if (config.intent is PendingIntent) {
                             val pendingIntent = Refine.unsafeCast<PendingIntentHidden>(config.intent)
-                            result = pendingIntent.sendAndReturnResult(
-                                context, 0, null, null,
-                                null, null, options.toBundle()
-                            )
+                            result = activityManager!!.sendIntentSender(
+                                pendingIntent.target, pendingIntent.whitelistToken, 0, null,
+                                null, null, null, options.toBundle())
+                            if (result >= 100) {
+                                // TODO: 添加后台启动方法
+                            }
                         }
                         if (result < 0) {
                             Toast.makeText(context, "Start Failed Result Code: $result", Toast.LENGTH_SHORT).show()
                             destroy()
                             return
                         }
+                        if (result >= 100) {
+                            Toast.makeText(context, "Start Not Success Result Code: $result", Toast.LENGTH_SHORT).show()
+                        }
+
                         FreeformHelper.addFreeformToSet(this@FreeformView)
                         firstInit = false
                     } else
@@ -1170,10 +1176,9 @@ class FreeformView(
                                     )
                                 } else if (config.intent is PendingIntent) {
                                     val pendingIntent = Refine.unsafeCast<PendingIntentHidden>(config.intent)
-                                    result = pendingIntent.sendAndReturnResult(
-                                        context, 0, null, null,
-                                        null, null, options.toBundle()
-                                    )
+                                    result = activityManager!!.sendIntentSender(
+                                        pendingIntent.target, pendingIntent.whitelistToken, 0, null,
+                                        null, null, null, options.toBundle())
                                 }
                                 if (result < 0) {
                                     Toast.makeText(context, "Start Failed Result Code: $result", Toast.LENGTH_SHORT).show()
