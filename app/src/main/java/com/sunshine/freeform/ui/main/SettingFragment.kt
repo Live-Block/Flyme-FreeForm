@@ -139,7 +139,6 @@ class SettingFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClick
                 if (newValue as Boolean && !PermissionUtils.checkNotificationListenerPermission(requireContext())) {
                     Toast.makeText(requireContext(), getString(R.string.require_notification), Toast.LENGTH_SHORT).show()
                     startActivity(Intent(requireActivity(), PermissionActivity::class.java))
-                    requireActivity().finish()
                     return false
                 }
             }
