@@ -7,6 +7,7 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.*
+import android.content.ComponentName
 import android.content.Context
 import android.content.ContextHidden
 import android.content.Intent
@@ -439,12 +440,19 @@ class FreeformView(
                                 null, options.toBundle(), config.userId
                             )
                         } else if (config.intent is PendingIntent) {
-                            val pendingIntent = Refine.unsafeCast<PendingIntentHidden>(config.intent)
-                            result = activityManager!!.sendIntentSender(
-                                pendingIntent.target, pendingIntent.whitelistToken, 0, null,
-                                null, null, null, options.toBundle())
-                            if (result >= 100) {
-                                // TODO: 添加后台启动方法
+                            val intent = Intent().setComponent(ComponentName(config.packageName, config.activityName))
+                            result = activityManager!!.startActivityAsUserWithFeature(
+                                null, shell, null, intent,
+                                intent.type, null, null, 0, 0,
+                                null, options.toBundle(), config.userId
+                            )
+                            if (result in 0..99) {
+                                val pendingIntent =
+                                    Refine.unsafeCast<PendingIntentHidden>(config.intent)
+                                result = activityManager!!.sendIntentSender(
+                                    pendingIntent.target, pendingIntent.whitelistToken, 0, null,
+                                    null, null, null, options.toBundle()
+                                )
                             }
                         }
                         if (result < 0) {
