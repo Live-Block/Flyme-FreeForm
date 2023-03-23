@@ -29,12 +29,9 @@ object FreeformHelper {
 
     //正在展示的小窗
     private val freeformStackSet = StackSet()
-    //挂在后台的小窗
-    private val miniFreeformStackSet = StackSet()
 
     //记录包名+userId，更加快速
     private val freeformPackageSet = HashSet<String>()
-    private val miniFreeformPackageSet = HashSet<String>()
 
     fun getDefaultHeight(context: Context): Int {
         return getDefaultHeight(context, (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).getDisplay(Display.DEFAULT_DISPLAY))
@@ -108,30 +105,12 @@ object FreeformHelper {
         freeformPackageSet.remove("${freeformView.config.packageName}/${freeformView.config.userId}")
     }
 
-    fun addMiniFreeformToSet(freeformView: FreeformViewAbs) {
-        miniFreeformStackSet.push(freeformView)
-        miniFreeformPackageSet.add("${freeformView.config.packageName}/${freeformView.config.userId}")
-    }
-
-    fun removeMiniFreeformFromSet(freeformView: FreeformViewAbs) {
-        miniFreeformStackSet.remove(freeformView)
-        miniFreeformPackageSet.remove("${freeformView.config.packageName}/${freeformView.config.userId}")
-    }
-
     fun getFreeformStackSet(): StackSet {
         return freeformStackSet
-    }
-
-    fun getMiniFreeformStackSet(): StackSet {
-        return miniFreeformStackSet
     }
 
     //检查要启动的小窗是否正在小窗中运行
     fun isAppInFreeform(packageName: String, userId: Int): Boolean {
         return freeformPackageSet.contains("$packageName/$userId")
-    }
-    //检查要启动的小窗是否正在小窗中后台运行
-    fun isAppInMiniFreeform(packageName: String, userId: Int): Boolean {
-        return miniFreeformPackageSet.contains("$packageName/$userId")
     }
 }

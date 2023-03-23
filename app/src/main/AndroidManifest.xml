@@ -49,12 +49,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.recent.RecentActivity"
-            android:exported="true"
-            android:label="@string/recent_label"
-            android:taskAffinity=":recent"
-            android:theme="@style/ActivityDialogTheme" />
-        <activity
             android:name=".ui.permission.PermissionActivity"
             android:exported="false" />
         <activity

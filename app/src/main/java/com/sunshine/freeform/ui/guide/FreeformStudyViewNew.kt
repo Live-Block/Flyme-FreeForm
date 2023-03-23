@@ -665,26 +665,6 @@ class FreeformStudyViewNew(
     }
 
     /**
-     * 隐藏小窗到后台
-     */
-    private fun toBackstage() {
-        windowManager.removeViewImmediate(binding.root)
-        FreeformHelper.removeFreeformFromSet(this)
-        FreeformHelper.addMiniFreeformToSet(this)
-        isBackstage = true
-    }
-
-    /**
-     * 从后台恢复
-     */
-    override fun fromBackstage() {
-        windowManager.addView(binding.root, windowLayoutParams)
-        FreeformHelper.removeMiniFreeformFromSet(this)
-        FreeformHelper.addFreeformToSet(this)
-        isBackstage = false
-    }
-
-    /**
      * 尝试将小窗内容全屏
      */
     private fun moveTaskToDefaultDisplay() {
@@ -1166,8 +1146,6 @@ class FreeformStudyViewNew(
             //尝试恢复小窗状态
             if (FreeformHelper.isAppInFreeform(config.packageName, config.userId)) {
                 FreeformHelper.getFreeformStackSet().getByPackageName(config.packageName, config.userId)?.moveToFirst()
-            } else if (FreeformHelper.isAppInMiniFreeform(config.packageName, config.userId)) {
-                FreeformHelper.getMiniFreeformStackSet().getByPackageName(config.packageName, config.userId)?.fromBackstage()
             } else {
                 initSystemService()
                 initConfig()

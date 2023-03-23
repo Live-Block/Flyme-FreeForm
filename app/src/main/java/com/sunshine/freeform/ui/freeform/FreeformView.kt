@@ -79,9 +79,6 @@ class FreeformView(
     //是否处于隐藏状态，当打开米窗的正在运行小窗界面时，应当隐藏所有小窗
     private var isHidden = false
 
-    //是否处于后台挂起状态
-    private var isBackstage = false
-
     //小窗中应用的taskId
     private var taskId = -1
 
@@ -395,7 +392,7 @@ class FreeformView(
                 //挂起状态无需更新
                 //修复 在有正在运行程序的情况下锁屏，米窗崩溃的问题 q220902.1
                 //优化 锁屏后小窗的状态 q220917.3
-                if (!isBackstage) {
+                if (!isHidden) {
                     binding.root.alpha = 0f
                     windowLayoutParams.flags =
                             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
@@ -410,7 +407,7 @@ class FreeformView(
             //解锁恢复小窗
             override fun onUserPresent() {
                 //挂起状态无需更新
-                if (!isBackstage) {
+                if (!isHidden) {
                     binding.root.alpha = 1f
                     windowLayoutParams.flags =
                             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
@@ -771,17 +768,6 @@ class FreeformView(
             windowManager.addView(binding.root, windowLayoutParams)
             FreeformHelper.addFreeformToSet(this)
         }
-    }
-
-
-    /**
-     * 从后台恢复
-     */
-    override fun fromBackstage() {
-        windowManager.addView(binding.root, windowLayoutParams)
-        FreeformHelper.removeMiniFreeformFromSet(this)
-        FreeformHelper.addFreeformToSet(this)
-        isBackstage = false
     }
 
     private fun refreshFreeformSize() {
@@ -1721,17 +1707,10 @@ class FreeformView(
                     freeformView?.toScreenCenter()
                     freeformView?.moveToFirst()
                 }
-            } else if (FreeformHelper.isAppInMiniFreeform(config.packageName, config.userId)) {
-                FreeformHelper.getMiniFreeformStackSet().getByPackageName(config.packageName, config.userId)?.fromBackstage()
             } else {
                 FreeformHelper.checkAndClean()
                 initSystemService()
                 initConfig()
-
-                //youtube单独适配
-                if (config.packageName == YOUTUBE) {
-                    config.activityName = YOUTUBE_ACTIVITY
-                }
                 initView()
             }
         }

@@ -24,8 +24,6 @@ import com.sunshine.freeform.ui.floating_apps_sort.FloatingAppsSortActivity
 import com.sunshine.freeform.ui.choose_apps.ChooseAppsActivity
 import com.sunshine.freeform.room.FreeFormAppsEntity
 import com.sunshine.freeform.ui.freeform.*
-import dev.rikka.tools.refine.Refine
-import rikka.shizuku.SystemServiceHelper
 import java.lang.reflect.Method
 
 /**
@@ -43,7 +41,6 @@ class ChooseAppFloatingAdapter(
     private var resolveInfoList: MutableList<ResolveInfo>
     private lateinit var launcherApps: LauncherApps
     private val userHandleMap = HashMap<Int, UserHandle>()
-    private val miniFreeformSize = FreeformHelper.getMiniFreeformStackSet().size()
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val icon: ImageView = itemView.findViewById(R.id.imageView_icon)
@@ -70,7 +67,7 @@ class ChooseAppFloatingAdapter(
 
     override fun getItemCount(): Int {
         //2021.07.25更新，新增展示最小化的应用
-        return apps?.size?.plus(2)!! + miniFreeformSize
+        return apps?.size?.plus(2)!!
     }
 
     @SuppressLint("SetTextI18n")
@@ -85,27 +82,7 @@ class ChooseAppFloatingAdapter(
                 }
             }
 
-            in 1 .. miniFreeformSize -> {
-                val packageName = FreeformHelper.getMiniFreeformStackSet().get(position - 1).config.packageName
-                try {
-                    //val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
-                    val userHandle = if (userHandleMap.containsKey(FreeformHelper.getMiniFreeformStackSet().get(position - 1).config.userId)) userHandleMap[FreeformHelper.getMiniFreeformStackSet().get(position - 1).config.userId]!! else userHandleMap[0]!!
-                    val appInfo = launcherApps.getApplicationInfo(packageName, 0, userHandle)
-                    Glide.with(context)
-                        .load(appInfo.loadIcon(context.packageManager))
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(holder.icon)
-                    holder.appName.text = "${getLabel(appInfo, FreeformHelper.getMiniFreeformStackSet().get(position - 1).config.userId)}\n${context.getString(R.string.running)}"
-                    holder.click.setOnClickListener {
-                        FreeformHelper.getMiniFreeformStackSet().get(position - 1).fromBackstage()
-                        callback.onClick()
-                    }
-                } catch (e: PackageManager.NameNotFoundException) {
-
-                }
-            }
-
-            apps!!.size + 1 + miniFreeformSize -> {
+            apps!!.size + 1 -> {
                 holder.icon.setImageResource(R.drawable.ic_add)
                 holder.appName.text = context.getString(R.string.edit_apps)
                 holder.click.setOnClickListener {
@@ -114,11 +91,11 @@ class ChooseAppFloatingAdapter(
                 }
             }
             else -> {
-                val packageName = apps[position - 1 - miniFreeformSize].packageName
+                val packageName = apps[position - 1].packageName
                 try {
                     //val appInfo = context.packageManager.getApplicationInfo(packageName, 0)
-                    val userHandle = if (userHandleMap.containsKey(apps[position - 1 - miniFreeformSize].userId)) userHandleMap[apps[position - 1 - miniFreeformSize].userId]!! else userHandleMap[0]!!
-                    val appInfo = launcherApps.getApplicationInfo(apps[position - 1 - miniFreeformSize].packageName, 0, userHandle)
+                    val userHandle = if (userHandleMap.containsKey(apps[position - 1].userId)) userHandleMap[apps[position - 1].userId]!! else userHandleMap[0]!!
+                    val appInfo = launcherApps.getApplicationInfo(apps[position - 1].packageName, 0, userHandle)
                     var activityName = ""
                     resolveInfoList.forEach {
                         it.activityInfo
@@ -130,11 +107,11 @@ class ChooseAppFloatingAdapter(
                         .load(appInfo.loadIcon(context.packageManager))
                         .transition(DrawableTransitionOptions.withCrossFade())
                         .into(holder.icon)
-                    holder.appName.text = getLabel(appInfo, apps[position - 1 - miniFreeformSize].userId)
+                    holder.appName.text = getLabel(appInfo, apps[position - 1].userId)
                     holder.click.setOnClickListener {
                         FreeformView(
                             FreeformConfig(
-                                userId = apps[position - 1 - miniFreeformSize].userId,
+                                userId = apps[position - 1].userId,
                                 intent = Intent(Intent.ACTION_MAIN).setComponent(ComponentName(packageName, activityName)).setPackage(packageName).addCategory(Intent.CATEGORY_LAUNCHER)
                             ),
                             context
