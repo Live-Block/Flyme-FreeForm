@@ -172,7 +172,7 @@ class FreeformView(
 
     private val backgroundGestureDetector = GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
         override fun onSingleTapUp(e: MotionEvent): Boolean {
-            if (!isHangUp) {
+            if (!isFloating) {
                 destroy()
             }
             return true
@@ -185,7 +185,7 @@ class FreeformView(
                 config.floatViewSize = (sharedPreferences.getInt(key, 20)) / 100.toFloat()
                 hangUpViewHeight = (realScreenHeight * config.floatViewSize).roundToInt()
                 hangUpViewWidth = (hangUpViewHeight * config.widthHeightRatio).roundToInt()
-                if (isHangUp) {
+                if (isFloating) {
                     if (isHidden) {
                         hiddenViewToFloatView(false)
                     }
@@ -216,7 +216,7 @@ class FreeformView(
         }
 
     //是否处于挂起状态
-    private var isHangUp = false
+    private var isFloating = false
     //挂起位置，0：是否在左，1：是否在上
     private val hangUpPosition = booleanArrayOf(false, true)
 
@@ -268,6 +268,18 @@ class FreeformView(
         //---------------客制化配置-----------------
 
         config.rememberPosition = viewModel.getBooleanSp("remember_freeform_position", false)
+        if (config.rememberPosition) {
+            lastFloatViewLocation[0] = if (FreeformHelper.screenIsPortrait(screenRotation)) {
+                viewModel.getIntSp(REMEMBER_X, -1)
+            } else {
+                viewModel.getIntSp(REMEMBER_LAND_X, -1)
+            }
+            lastFloatViewLocation[1] = if (FreeformHelper.screenIsPortrait(screenRotation)) {
+                viewModel.getIntSp(REMEMBER_Y, -1)
+            } else {
+                viewModel.getIntSp(REMEMBER_LAND_Y, -1)
+            }
+        }
         config.floatViewSize = (viewModel.getIntSp("freeform_float_view_size", 20)) / 100.toFloat()
 
         viewModel.registerOnSharedPreferenceChangeListener(sharedPreferencesChangeListener)
@@ -418,7 +430,7 @@ class FreeformView(
                             WindowManager.LayoutParams.FLAG_DIM_BEHIND or
                             WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
 
-                    if (!isHangUp) windowLayoutParams.dimAmount = config.dimAmount
+                    if (!isFloating) windowLayoutParams.dimAmount = config.dimAmount
                     windowManager.updateViewLayout(binding.root, windowLayoutParams)
                 }
             }
@@ -531,20 +543,12 @@ class FreeformView(
             height = rootHeight
         }
 
-        //恢复记录的位置
-        if (config.rememberPosition) {
+        //横屏移动到屏幕左侧显示小窗
+        if (screenRotation == Surface.ROTATION_90 || screenRotation == Surface.ROTATION_270) {
             windowLayoutParams.apply {
-                x = config.rememberX
-                y = config.rememberY
-            }
-        } else {
-            //横屏移动到屏幕左侧显示小窗
-            if (screenRotation == Surface.ROTATION_90 || screenRotation == Surface.ROTATION_270) {
-                windowLayoutParams.apply {
-                    x = genCenterLocation()[0]
-                    //往上移动一些
-                    y = genCenterLocation()[1]
-                }
+                x = genCenterLocation()[0]
+                //往上移动一些
+                y = genCenterLocation()[1]
             }
         }
 
@@ -692,7 +696,7 @@ class FreeformView(
         refreshTouchScale()
         refreshActionScale()
 
-        if (isHangUp && !isHidden) {
+        if (isFloating && !isHidden) {
             moveFloatViewLocation(location, true)
         } else if (isHidden) {
             moveHiddenViewLocation(location)
@@ -747,13 +751,13 @@ class FreeformView(
      * 如果小窗无法控制了，可以尝试移动到屏幕中心以控制
      */
     override fun toScreenCenter() {
-        if (isHangUp) return
+        if (isFloating) return
         windowLayoutParams.x = 0
         windowLayoutParams.y = 0
     }
 
     override fun moveToFirst() {
-        if (isHangUp) {
+        if (isFloating) {
             if (isHidden) {
                 hiddenViewToFloatView(true)
             } else {
@@ -982,7 +986,7 @@ class FreeformView(
     private var isZoomOut = false
 
     private fun handleToFloatScale(dx: Float, dy: Float) {
-        if (isHangUp) return
+        if (isFloating) return
 
         if (dy != 0f) {
             val tempHeight = freeformHeight + dy
@@ -1097,7 +1101,7 @@ class FreeformView(
                                             })
                                             start()
                                         }
-                                        isHangUp = true
+                                        isFloating = true
                                     }
 
                                     override fun onAnimationEnd(animation: Animator) {
@@ -1559,7 +1563,7 @@ class FreeformView(
             start()
         }
 
-        isHangUp = false
+        isFloating = false
 
         setWindowNoUpdateAnimation()
     }
@@ -1631,15 +1635,13 @@ class FreeformView(
             val sp = context.getSharedPreferences(MiFreeform.APP_SETTINGS_NAME, Context.MODE_PRIVATE)
             if (screenRotation == Surface.ROTATION_90 || screenRotation == Surface.ROTATION_270) {
                 sp.edit()
-                    .putInt(REMEMBER_LAND_X, windowLayoutParams.x)
-                    .putInt(REMEMBER_LAND_Y, windowLayoutParams.y)
-                    .putInt(REMEMBER_LAND_HEIGHT, freeformHeight)
+                    .putInt(REMEMBER_LAND_X, lastFloatViewLocation[0])
+                    .putInt(REMEMBER_LAND_Y, lastFloatViewLocation[1])
                     .apply()
             } else {
                 sp.edit()
-                    .putInt(REMEMBER_X, windowLayoutParams.x)
-                    .putInt(REMEMBER_Y, windowLayoutParams.y)
-                    .putInt(REMEMBER_HEIGHT, freeformHeight)
+                    .putInt(REMEMBER_X, lastFloatViewLocation[0])
+                    .putInt(REMEMBER_Y, lastFloatViewLocation[1])
                     .apply()
             }
         }

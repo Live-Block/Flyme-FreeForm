@@ -111,8 +111,8 @@
     <string name="category_freeform">小窗设置</string>
     <string name="setting_freeform_dpi_title">小窗内界面缩放-竖屏</string>
     <string name="setting_freeform_landscape_dpi_title">小窗内界面缩放-横屏</string>
-    <string name="remember_position_title">记住小窗位置与大小</string>
-    <string name="remember_position_summary">记住上次关闭小窗时的位置与大小</string>
+    <string name="remember_position_title">记住悬浮小窗位置</string>
+    <string name="remember_position_summary">记住上次悬浮时的位置</string>
     <string name="use_sui_refuse_to_fullscreen_title">使用Shizuku/Sui阻止应用跳出小窗到全屏(实验性)</string>
     <string name="use_sui_refuse_to_fullscreen_summary">暂时只支持Android 12+。该功能建议仅在没有Xposed或者Xposed阻止失败时启用。尝试使用Shizuku/Sui阻止小窗内的应用从小窗跳出到全屏。该功能仍在测试中，不保证阻止成功，并且会导致屏幕闪烁、卡顿等问题</string>
     <string name="manual_adjust_freeform_rotation_title">手动调整小窗方向（实验性）</string>

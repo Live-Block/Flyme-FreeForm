@@ -107,8 +107,8 @@
     <string name="no_step_done">Please complete all instructions</string>
     <string name="have_done">Done</string>
     <string name="test">1</string>
-    <string name="remember_position_title">Remember freeform position and size</string>
-    <string name="remember_position_summary">Remember the position and size of freeform when it was last closed</string>
+    <string name="remember_position_title">Remember floating freeform position</string>
+    <string name="remember_position_summary">Remember the position of floating freeform when it was last closed</string>
     <string name="senior_info">Thanks. But for the time being, Mi-FreeForm maybe not support donate from outside mainland China:(</string>
 
     <string name="donation_label">Donation</string>
