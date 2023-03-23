@@ -125,10 +125,6 @@ class FreeformView(
     private var freeformHeight = 0
     private var freeformWidth = 0
 
-    //max(freeformScreenHeight,freeformScreenWidth)，用于计算scale
-    private var maxFreeformScreenSize = 0
-    private var minFreeformScreenSize = 0
-
     // 挂起后与边缘的 Padding
     private var screenPaddingX: Int = context.resources.getDimension(R.dimen.freeform_screen_width_padding).roundToInt()
     private var screenPaddingY: Int = context.resources.getDimension(R.dimen.freeform_screen_height_padding).roundToInt()
@@ -253,17 +249,10 @@ class FreeformView(
     private fun initConfig() {
         config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
 
-        realScreenWidth = context.resources.displayMetrics.widthPixels
-        realScreenHeight = context.resources.displayMetrics.heightPixels
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val rect = windowManager.currentWindowMetrics.bounds
-            realScreenWidth = rect.width()
-            realScreenHeight = rect.height()
-        }
-
-        rootHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) realScreenHeight else realScreenWidth
-        rootWidth = if (FreeformHelper.screenIsPortrait(screenRotation)) realScreenWidth else realScreenHeight
+        initRealScreenSize()
+        initRootSize()
+        initMargin()
+        initFloatViewSize()
 
         config.freeformDpi = FreeformHelper.getScreenDpi(context)
 
@@ -277,8 +266,6 @@ class FreeformView(
             freeformScreenHeight = max(1, freeformScreenHeight)
         }
         freeformScreenWidth = (freeformScreenHeight * config.widthHeightRatio).roundToInt()
-        maxFreeformScreenSize = freeformScreenHeight
-        minFreeformScreenSize = freeformScreenWidth
 
         if (config.useCustomConfig) return
         //---------------客制化配置-----------------
@@ -286,16 +273,60 @@ class FreeformView(
         config.rememberPosition = viewModel.getBooleanSp("remember_freeform_position", false)
         config.floatViewSize = (viewModel.getIntSp("freeform_float_view_size", 20)) / 100.toFloat()
 
-        hangUpViewHeight = (rootHeight * config.floatViewSize).roundToInt()
-        hangUpViewWidth = (hangUpViewHeight * config.widthHeightRatio).roundToInt()
-
         viewModel.registerOnSharedPreferenceChangeListener(sharedPreferencesChangeListener)
-
-        scaleX = realScreenWidth / freeformScreenWidth.toFloat()
-        scaleY = (realScreenHeight - cardHeightMargin) / freeformScreenHeight.toFloat()
 
         config.useSuiRefuseToFullScreen = viewModel.getBooleanSp("use_sui_refuse_to_fullscreen", false)
         config.manualAdjustFreeformRotation = viewModel.getBooleanSp("manual_adjust_freeform_rotation", false)
+    }
+
+    private fun initRealScreenSize() {
+        var tmpWidth = context.resources.displayMetrics.widthPixels
+        var tmpHeight = context.resources.displayMetrics.heightPixels
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val rect = windowManager.currentWindowMetrics.bounds
+            tmpWidth = rect.width()
+            tmpHeight = rect.height()
+        }
+
+        if (screenRotation == Surface.ROTATION_0 || screenRotation == Surface.ROTATION_180) {
+            realScreenHeight = max(tmpWidth, tmpHeight)
+            realScreenWidth = min(tmpWidth, tmpHeight)
+        } else {
+            realScreenWidth = max(tmpWidth, tmpHeight)
+            realScreenHeight = min(tmpWidth, tmpHeight)
+        }
+    }
+
+    private fun initRootSize() {
+        rootHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) realScreenHeight else realScreenWidth
+        rootWidth = if (FreeformHelper.screenIsPortrait(screenRotation)) realScreenWidth else realScreenHeight
+        if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
+            rootWidth = realScreenWidth
+            rootHeight = ((rootWidth * config.widthHeightRatio) + cardHeightMargin).roundToInt()
+            if (!FreeformHelper.screenIsPortrait(screenRotation)) {
+                rootHeight = realScreenHeight
+                rootWidth = realScreenWidth
+            }
+        }
+    }
+
+    private fun initMargin() {
+        cardHeightMargin = if (FreeformHelper.screenIsPortrait(screenRotation)) (barHeight + freeformShadow) else 0f
+        cardWidthMargin = if (FreeformHelper.screenIsPortrait(screenRotation)) 0f else barHeight
+    }
+
+    private fun initFloatViewSize() {
+        hangUpViewHeight = (rootHeight * config.floatViewSize).roundToInt()
+        hangUpViewWidth = (hangUpViewHeight * config.widthHeightRatio).roundToInt()
+        if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
+            hangUpViewWidth = (realScreenHeight * config.floatViewSize).roundToInt()
+            hangUpViewHeight = (hangUpViewWidth * config.widthHeightRatio).roundToInt()
+            if (!FreeformHelper.screenIsPortrait(screenRotation)) {
+                hangUpViewWidth = (realScreenWidth * config.floatViewSize).roundToInt()
+                hangUpViewHeight = (hangUpViewWidth * config.widthHeightRatio).roundToInt()
+            }
+        }
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -329,14 +360,9 @@ class FreeformView(
                     rightMargin = barHeight.roundToInt()
                 }
             }
-            cardHeightMargin = 0f
-            cardWidthMargin = barHeight
         }
 
         refreshFreeformSize()
-
-        goFloatScale = (freeformHeight * 0.8f) / rootHeight
-        goFullScale = (freeformHeight * 1.1f) / rootHeight
 
         resetScale()
 
@@ -490,23 +516,6 @@ class FreeformView(
     }
 
     private fun showWindow() {
-        if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_PORTRAIT) {
-            windowLayoutParams.apply {
-                width = rootWidth
-                height = rootHeight
-            }
-        } else {
-            windowLayoutParams.apply {
-                width = rootHeight
-                height = rootWidth
-            }
-            scaleY = realScreenWidth / freeformScreenWidth.toFloat()
-            scaleX = (realScreenHeight - cardHeightMargin) / freeformScreenHeight.toFloat()
-            mScaleY = freeformWidth / realScreenWidth.toFloat()
-            mScaleX = freeformHeight / realScreenHeight.toFloat()
-            binding.freeformRoot.scaleX = mScaleX
-            binding.freeformRoot.scaleY = mScaleY
-        }
         windowLayoutParams.apply {
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             flags =
@@ -524,6 +533,11 @@ class FreeformView(
 
         setWindowNoUpdateAnimation()
 
+        windowLayoutParams.apply {
+            width = rootWidth
+            height = rootHeight
+        }
+
         //恢复记录的位置
         if (config.rememberPosition) {
             windowLayoutParams.apply {
@@ -534,9 +548,9 @@ class FreeformView(
             //横屏移动到屏幕左侧显示小窗
             if (screenRotation == Surface.ROTATION_90 || screenRotation == Surface.ROTATION_270) {
                 windowLayoutParams.apply {
-                    x = (freeformWidth - rootHeight + screenPaddingX) / 2
+                    x = genCenterLocation()[0]
                     //往上移动一些
-                    y = 0
+                    y = genCenterLocation()[1]
                 }
             }
         }
@@ -634,65 +648,36 @@ class FreeformView(
         val tempHeight = max(freeformScreenHeight, freeformScreenWidth)
         val tempWidth = min(freeformScreenHeight, freeformScreenWidth)
 
-        maxFreeformScreenSize = tempHeight
-        minFreeformScreenSize = tempWidth
-
+        initRealScreenSize()
+        initRootSize()
+        initFloatViewSize()
         if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_PORTRAIT) {
             freeformScreenHeight = tempHeight
             freeformScreenWidth = tempWidth
         } else {
             freeformScreenHeight = tempWidth
             freeformScreenWidth = tempHeight
-
-            //优化 小窗内部旋转时，如果旋转后的尺寸大于屏幕尺寸，则进行调整 q220904.3
-            //小窗横屏-物理屏幕竖屏
-            if (FreeformHelper.screenIsPortrait(screenRotation)) {
-                if (freeformHeight > realScreenWidth) {
-                    freeformHeight = realScreenWidth
-                    freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
-                    scaleX = freeformHeight / maxFreeformScreenSize.toFloat()
-                    scaleY = scaleX
-                }
-            }
         }
-
+        refreshFreeformSize()
+        resetScale()
         resizeVirtualDisplay()
-        updateWindowSize(false)
+        windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
+            width = rootWidth
+            height = rootHeight
+            x = genCenterLocation()[0]
+            y = genCenterLocation()[1]
+        })
     }
 
     private fun onScreenOrientationChanged() {
-        var tmpWidth = context.resources.displayMetrics.widthPixels
-        var tmpHeight = context.resources.displayMetrics.heightPixels
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val rect = windowManager.currentWindowMetrics.bounds
-            tmpWidth = rect.width()
-            tmpHeight = rect.height()
-        }
-
-        if (screenRotation == Surface.ROTATION_0 || screenRotation == Surface.ROTATION_180) {
-            realScreenHeight = max(tmpWidth, tmpHeight)
-            realScreenWidth = min(tmpWidth, tmpHeight)
-        } else {
-            realScreenWidth = max(tmpWidth, tmpHeight)
-            realScreenHeight = min(tmpWidth, tmpHeight)
-        }
-
         config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
 
-        rootHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) realScreenHeight else realScreenWidth
-        rootWidth = if (FreeformHelper.screenIsPortrait(screenRotation)) realScreenWidth else realScreenHeight
-
-        cardHeightMargin = if (FreeformHelper.screenIsPortrait(screenRotation)) (barHeight + freeformShadow) else 0f
-        cardWidthMargin = if (FreeformHelper.screenIsPortrait(screenRotation)) 0f else barHeight
+        initRealScreenSize()
+        initRootSize()
+        initMargin()
+        initFloatViewSize()
 
         refreshFreeformSize()
-
-        hangUpViewHeight = (rootHeight * config.floatViewSize).roundToInt()
-        hangUpViewWidth = (hangUpViewHeight * config.widthHeightRatio).roundToInt()
-
-        goFloatScale = (freeformHeight * 0.8f) / rootHeight
-        goFullScale = (freeformHeight * 1.1f) / rootHeight
 
         val location = genFloatViewLocation()
         lastFloatViewLocation = location
@@ -712,6 +697,7 @@ class FreeformView(
         }
 
         refreshTouchScale()
+        refreshActionScale()
 
         if (isHangUp && !isHidden) {
             moveFloatViewLocation(location, true)
@@ -721,13 +707,15 @@ class FreeformView(
             windowLayoutParams.apply {
                 height = rootHeight
                 width = rootWidth
-                x = 0
-                y = 0
             }
             (binding.cardRoot.layoutParams as ConstraintLayout.LayoutParams).apply {
                 topMargin = freeformShadow.roundToInt()
                 bottomMargin = barHeight.roundToInt()
                 rightMargin = 0
+            }
+            windowLayoutParams.apply {
+                x = genCenterLocation()[0]
+                y = genCenterLocation()[1]
             }
             if(!FreeformHelper.screenIsPortrait(screenRotation)) {
                 binding.apply {
@@ -737,15 +725,21 @@ class FreeformView(
                         rightMargin = barHeight.roundToInt()
                     }
                 }
-                windowLayoutParams.apply {
-                    x = (freeformWidth - rootHeight + screenPaddingX) / 2
-                    //往上移动一些
-                    y = 0
-                }
             }
             resetScale()
             windowManager.updateViewLayout(binding.root, windowLayoutParams)
         }
+    }
+
+    private fun genCenterLocation(): IntArray {
+        val center = intArrayOf(0, 0)
+        if (!FreeformHelper.screenIsPortrait(screenRotation)) {
+            center[0] = (freeformWidth - rootHeight + screenPaddingX) / 2
+            if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
+                center[0] = (freeformWidth - realScreenWidth + screenPaddingX) / 2
+            }
+        }
+        return center
     }
 
     private fun resizeVirtualDisplay() {
@@ -754,38 +748,6 @@ class FreeformView(
             freeformScreenHeight,
             config.freeformDpi
         )
-    }
-
-    private fun updateWindowSize(orientationChanged: Boolean) {
-        resetScale()
-        if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_PORTRAIT) {
-            windowLayoutParams.apply {
-                width = WindowManager.LayoutParams.MATCH_PARENT
-                height = WindowManager.LayoutParams.MATCH_PARENT
-            }
-        } else {
-            windowLayoutParams.apply {
-                width = freeformHeight
-                height = freeformWidth + context.resources.getDimension(R.dimen.bottom_bar_height).toInt() + context.resources.getDimension(R.dimen.freeform_shadow).toInt()
-            }
-        }
-
-        if (orientationChanged) {
-            //横屏移动到屏幕左侧显示小窗
-            if (screenRotation == Surface.ROTATION_90 || screenRotation == Surface.ROTATION_270) {
-                windowLayoutParams.apply {
-                    x = (width - realScreenWidth) / 2
-                }
-            }
-        }
-
-        //非后台挂起状态才进行刷新
-        if (!isBackstage) {
-            windowManager.updateViewLayout(
-                binding.root,
-                windowLayoutParams
-            )
-        }
     }
 
     /**
@@ -826,6 +788,16 @@ class FreeformView(
         freeformHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) (config.maxHeight * 0.75).roundToInt() else (config.maxHeight * 0.9).roundToInt()
         freeformHeight += cardHeightMargin.roundToInt()
         freeformWidth = ((freeformHeight + cardWidthMargin) * config.widthHeightRatio).roundToInt()
+        if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
+            if (freeformHeight > rootWidth) {
+                freeformWidth = (rootWidth - (rootWidth * 0.05)).roundToInt()
+                freeformHeight = (rootWidth * config.widthHeightRatio).roundToInt()
+            }
+            if (!FreeformHelper.screenIsPortrait(screenRotation)) {
+                freeformWidth = (realScreenWidth / 2 + cardWidthMargin).roundToInt()
+                freeformHeight = (freeformWidth * config.widthHeightRatio).roundToInt()
+            }
+        }
     }
 
     private fun refreshScale() {
@@ -840,9 +812,15 @@ class FreeformView(
         scaleY = (rootHeight - cardHeightMargin) / freeformScreenHeight.toFloat()
     }
 
+    private fun refreshActionScale() {
+        goFloatScale = (freeformHeight * 0.8f) / rootHeight
+        goFullScale = (freeformHeight * 1.1f) / rootHeight
+    }
+
     private fun resetScale() {
         refreshTouchScale()
         refreshScale()
+        refreshActionScale()
     }
 
     //按下时的坐标
@@ -881,6 +859,9 @@ class FreeformView(
                 backgroundGestureDetector.onTouchEvent(event)
             }
             R.id.middleView -> {
+                middleGestureDetector.onTouchEvent(event)
+            }
+            R.id.sideView -> {
                 middleGestureDetector.onTouchEvent(event)
             }
         }
@@ -927,6 +908,7 @@ class FreeformView(
             }
             R.id.sideView -> {
                 notifyToFloat()
+                middleGestureDetector.onTouchEvent(event)
             }
         }
         touchId = -1
@@ -1025,6 +1007,9 @@ class FreeformView(
             if (tempHeight >= hangUpViewHeight && tempHeight <= rootHeight * 0.9) {
                 freeformHeight += dy.roundToInt()
                 freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
+                if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
+                    freeformWidth = (freeformHeight / config.widthHeightRatio).roundToInt()
+                }
 
                 mScaleX = freeformWidth / rootWidth.toFloat()
                 mScaleY = freeformHeight / rootHeight.toFloat()
@@ -1037,6 +1022,9 @@ class FreeformView(
             if (tempWidth >= hangUpViewWidth && tempWidth <= rootWidth * 0.9) {
                 freeformWidth += dx.roundToInt()
                 freeformHeight = ((freeformWidth / config.widthHeightRatio) - cardWidthMargin).roundToInt()
+                if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
+                    freeformHeight = (freeformWidth * config.widthHeightRatio).roundToInt()
+                }
 
                 mScaleX = freeformWidth / rootWidth.toFloat()
                 mScaleY = freeformHeight / rootHeight.toFloat()
@@ -1276,11 +1264,11 @@ class FreeformView(
         var position = 0
         // R
         if (layoutParams.x > 0) {
-            location[0] += (hangUpViewHeight * config.widthHeightRatio + screenPaddingX).roundToInt()
+            location[0] += (hangUpViewWidth + screenPaddingX)
             position = 1
         // L
         } else {
-            location[0] -= (hangUpViewHeight * config.widthHeightRatio + screenPaddingX).roundToInt()
+            location[0] -= (hangUpViewWidth + screenPaddingX)
             position = -1
         }
 
@@ -1396,11 +1384,11 @@ class FreeformView(
                         var position = 0
                         // L
                         if (windowCoordinate[0] <= (realScreenWidth - (screenPaddingX / 2)) / -2) {
-                            location[0] -= (hangUpViewHeight * config.widthHeightRatio + screenPaddingX).roundToInt()
+                            location[0] -= (hangUpViewWidth + screenPaddingX)
                             position = -1
                         // R
                         } else if (windowCoordinate[0] >= (realScreenWidth - (screenPaddingX / 2)) / 2) {
-                            location[0] += (hangUpViewHeight * config.widthHeightRatio + screenPaddingX).roundToInt()
+                            location[0] += (hangUpViewWidth + screenPaddingX)
                             position = 1
                         }
 
@@ -1488,12 +1476,8 @@ class FreeformView(
             windowLayoutParams.y,
         )
 
-        val center: IntArray = intArrayOf(0, 0)
         val restoreScale = getRestoreFreeformScale()
-
-        if (!FreeformHelper.screenIsPortrait(screenRotation)) {
-            center[0] = (freeformWidth - rootHeight + screenPaddingX) / 2
-        }
+        val center: IntArray = genCenterLocation()
 
         AnimatorSet().apply {
             playTogether(
@@ -1611,9 +1595,9 @@ class FreeformView(
 
         val location: IntArray = intArrayOf(
             (if (hangUpPosition[0])
-                ((realScreenWidth - hangUpViewHeight * config.widthHeightRatio - screenPaddingX) / -2).roundToInt()
+                ((realScreenWidth - hangUpViewWidth - screenPaddingX) / -2)
             else
-                ((realScreenWidth - hangUpViewHeight * config.widthHeightRatio - screenPaddingX) / 2).roundToInt()),
+                ((realScreenWidth - hangUpViewWidth - screenPaddingX) / 2)),
             -1,
         )
 
