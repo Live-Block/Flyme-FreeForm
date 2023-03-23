@@ -432,27 +432,12 @@ class FreeformView(
                     if (config.intent != null) {
                         var result = 0
                         if (config.intent is Intent) {
-                            val intent = config.intent as Intent
-                            intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NO_ANIMATION
-                            result = activityManager!!.startActivityAsUserWithFeature(
-                                null, shell, null, intent,
-                                intent.type, null, null, 0, 0,
-                                null, options.toBundle(), config.userId
-                            )
+                            result = callIntent(config.intent as Intent, options)
                         } else if (config.intent is PendingIntent) {
                             val intent = Intent(Intent.ACTION_MAIN).setComponent(ComponentName(config.packageName, config.activityName)).setPackage(config.packageName).addCategory(Intent.CATEGORY_LAUNCHER)
-                            result = activityManager!!.startActivityAsUserWithFeature(
-                                null, shell, null, intent,
-                                intent.type, null, null, 0, 0,
-                                null, options.toBundle(), config.userId
-                            )
+                            result = callIntent(intent, options)
                             if (result in 0..99) {
-                                val pendingIntent =
-                                    Refine.unsafeCast<PendingIntentHidden>(config.intent)
-                                result = activityManager!!.sendIntentSender(
-                                    pendingIntent.target, pendingIntent.whitelistToken, 0, null,
-                                    null, null, null, options.toBundle()
-                                )
+                                callPendingIntent(config.intent as PendingIntent, options)
                             }
                         }
                         if (result < 0) {
@@ -584,6 +569,36 @@ class FreeformView(
                 }
             }
         }
+    }
+
+    private fun callIntent(intent: Intent,
+                           options: ActivityOptions,
+                           withoutAnim: Boolean = true,
+                           userId: Int = config.userId,
+    ): Int {
+        if (withoutAnim) intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NO_ANIMATION
+        return activityManager!!.startActivityAsUserWithFeature(
+            null, shell, null, intent,
+            intent.type, null, null, 0, 0,
+            null, options.toBundle(), userId,
+        )
+    }
+
+    override fun callPendingIntent(pendingIntent: PendingIntent) {
+        val options = ActivityOptions.makeBasic().apply {
+            launchDisplayId = virtualDisplay.display.displayId
+        }
+        callPendingIntent(pendingIntent, options)
+    }
+
+    private fun callPendingIntent(pendingIntent: PendingIntent,
+                                  options: ActivityOptions,
+    ): Int {
+        val pendingIntentHidden = Refine.unsafeCast<PendingIntentHidden>(pendingIntent)
+        return activityManager!!.sendIntentSender(
+            pendingIntentHidden.target, pendingIntentHidden.whitelistToken, 0, null,
+            null, null, null, options.toBundle()
+        )
     }
 
     /**
@@ -1175,18 +1190,9 @@ class FreeformView(
                                 }
                                 var result = 0
                                 if (config.intent is Intent) {
-                                    val intent = config.intent as Intent
-                                    intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NO_ANIMATION
-                                    result = activityManager!!.startActivityAsUserWithFeature(
-                                        null, shell, null, intent,
-                                        intent.type, null, null, 0, 0,
-                                        null, options.toBundle(), config.userId
-                                    )
+                                    result = callIntent(config.intent as Intent, options)
                                 } else if (config.intent is PendingIntent) {
-                                    val pendingIntent = Refine.unsafeCast<PendingIntentHidden>(config.intent)
-                                    result = activityManager!!.sendIntentSender(
-                                        pendingIntent.target, pendingIntent.whitelistToken, 0, null,
-                                        null, null, null, options.toBundle())
+                                    result = callPendingIntent(config.intent as PendingIntent, options)
                                 }
                                 if (result < 0) {
                                     Toast.makeText(context, "Start Failed Result Code: $result", Toast.LENGTH_SHORT).show()
@@ -1725,8 +1731,12 @@ class FreeformView(
             //优化 如果小窗移动到屏幕外导致无法控制，可以尝试从侧边栏再次点击该应用以移动到屏幕中心 q220917.4
             if (FreeformHelper.isAppInFreeform(config.packageName, config.userId)) {
                 val freeformView = FreeformHelper.getFreeformStackSet().getByPackageName(config.packageName, config.userId)
-                freeformView?.toScreenCenter()
-                freeformView?.moveToFirst()
+                if (config.intent is PendingIntent) {
+                    freeformView?.callPendingIntent(config.intent as PendingIntent)
+                } else {
+                    freeformView?.toScreenCenter()
+                    freeformView?.moveToFirst()
+                }
             } else if (FreeformHelper.isAppInMiniFreeform(config.packageName, config.userId)) {
                 FreeformHelper.getMiniFreeformStackSet().getByPackageName(config.packageName, config.userId)?.fromBackstage()
             } else {

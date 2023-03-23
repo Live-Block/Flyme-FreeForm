@@ -651,6 +651,9 @@ class FreeformStudyViewNew(
         }
     }
 
+    override fun callPendingIntent(pendingIntent: PendingIntent) {
+    }
+
     override fun toScreenCenter() {
 
     }
