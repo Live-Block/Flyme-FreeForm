@@ -1,5 +1,7 @@
 package com.sunshine.freeform.ui.freeform
 
+import android.content.ComponentName
+
 /**
  * @author sunshine
  * @date 2021/3/18
@@ -37,15 +39,6 @@ class StackSet {
         }
     }
 
-    fun containsFreeform(packageName: String, userId: Int): Boolean {
-        elementData.forEach {
-            if (it.config.packageName == packageName && it.config.userId == userId) {
-                return true
-            }
-        }
-        return false
-    }
-
     fun size(): Int {
         return elementData.size
     }
@@ -54,9 +47,9 @@ class StackSet {
         return elementData[index]
     }
 
-    fun getByPackageName(packageName: String, userId: Int): FreeformViewAbs? {
+    fun getByComponentName(componentName: ComponentName, userId: Int): FreeformViewAbs? {
         elementData.forEach {
-            if (it.config.packageName == packageName && it.config.userId == userId) {
+            if (it.config.componentName!! == componentName && it.config.userId == userId) {
                 return it
             }
         }

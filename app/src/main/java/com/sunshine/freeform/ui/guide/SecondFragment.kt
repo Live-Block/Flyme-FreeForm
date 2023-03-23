@@ -1,6 +1,7 @@
 package com.sunshine.freeform.ui.guide
 
 import android.annotation.SuppressLint
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Build
@@ -97,8 +98,7 @@ class SecondFragment : Fragment() {
             freeformStudyView = FreeformStudyViewNew(
                 FreeformConfig(
                     useCustomConfig = false,
-                    packageName = requireContext().packageName,
-                    activityName = "${requireContext().packageName}.ui.guide.GuideStudyActivity",
+                    componentName = ComponentName(requireContext(), GuideStudyActivity::class.java),
                     userId = 0
                 ),
                 requireContext(),

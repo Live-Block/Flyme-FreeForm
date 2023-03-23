@@ -1,5 +1,6 @@
 package com.sunshine.freeform.ui.freeform
 
+import android.content.ComponentName
 import android.content.Context
 import android.content.res.Configuration
 import android.hardware.display.DisplayManager
@@ -97,12 +98,12 @@ object FreeformHelper {
 
     fun addFreeformToSet(freeformView: FreeformViewAbs) {
         freeformStackSet.push(freeformView)
-        freeformPackageSet.add("${freeformView.config.packageName}/${freeformView.config.userId}")
+        freeformPackageSet.add("${freeformView.config.componentName}/${freeformView.config.userId}")
     }
 
     fun removeFreeformFromSet(freeformView: FreeformViewAbs) {
         freeformStackSet.remove(freeformView)
-        freeformPackageSet.remove("${freeformView.config.packageName}/${freeformView.config.userId}")
+        freeformPackageSet.remove("${freeformView.config.componentName}/${freeformView.config.userId}")
     }
 
     fun getFreeformStackSet(): StackSet {
@@ -110,7 +111,7 @@ object FreeformHelper {
     }
 
     //检查要启动的小窗是否正在小窗中运行
-    fun isAppInFreeform(packageName: String, userId: Int): Boolean {
-        return freeformPackageSet.contains("$packageName/$userId")
+    fun isAppInFreeform(componentName: ComponentName, userId: Int): Boolean {
+        return freeformPackageSet.contains("$componentName/$userId")
     }
 }

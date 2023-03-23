@@ -1,7 +1,9 @@
 package com.sunshine.freeform.ui.floating
 
 import android.app.ActivityOptions
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
 import android.content.pm.LauncherActivityInfo
 import android.content.pm.PackageManager
 import android.view.LayoutInflater
@@ -65,9 +67,8 @@ class AllAppsAdapter(
 
                 FreeformView(
                     FreeformConfig(
-                        packageName = packageName,
-                        activityName = activityName,
-                        userId = userId
+                        userId = userId,
+                        intent = Intent(Intent.ACTION_MAIN).setComponent(ComponentName(packageName, activityName)).setPackage(packageName).addCategory(Intent.CATEGORY_LAUNCHER),
                     ),
                     context
                 )

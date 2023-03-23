@@ -1,6 +1,7 @@
 package com.sunshine.freeform.broadcast
 
 import android.content.BroadcastReceiver
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.os.Parcelable
@@ -19,8 +20,7 @@ class StartFreeformReceiver : BroadcastReceiver() {
             FreeformView(
                 FreeformConfig(
                     useCustomConfig = false,
-                    packageName = packageName,
-                    activityName = activityName,
+                    componentName = ComponentName(packageName, activityName),
                     intent = parcelable,
                     userId = userId
                 ),

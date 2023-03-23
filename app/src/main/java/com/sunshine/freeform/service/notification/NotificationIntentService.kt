@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -55,8 +56,7 @@ class NotificationIntentService : Service() {
             val sp = getSharedPreferences(MiFreeform.APP_SETTINGS_NAME, Context.MODE_PRIVATE)
             FreeformView(
                 FreeformConfig(
-                    packageName = targetPackage,
-                    activityName = activityName,
+                    componentName = ComponentName(packageName, activityName),
                     userId = targetUserId,
                     intent = targetIntent,
                     maxHeight = FreeformHelper.getDefaultHeight(this)

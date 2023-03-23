@@ -182,7 +182,7 @@ class FreeformStudyViewNew(
         override fun onTaskMovedToFront(taskInfo: ActivityManager.RunningTaskInfo) {
             try {
                 val userId = taskInfo::class.java.getField("userId").get(taskInfo)
-                if (taskInfo.baseActivity!!.packageName == config.packageName && userId == config.userId) {
+                if (taskInfo.baseActivity!!.packageName == config.componentName!!.packageName && userId == config.userId) {
                     taskId = taskInfo.taskId
                 }
             } catch (e: Exception) { }
@@ -347,7 +347,7 @@ class FreeformStudyViewNew(
     private fun initDisplay() {
         try {
             virtualDisplay = displayManager.createVirtualDisplay(
-                "MiFreeform@${config.packageName}@${config.userId}",
+                "MiFreeform@${config.componentName}@${config.userId}",
                 freeformScreenWidth,
                 freeformScreenHeight,
                 config.freeformDpi,
@@ -411,7 +411,7 @@ class FreeformStudyViewNew(
                 virtualDisplay.surface = Surface(surface)
 
                 if (firstInit) {
-                    if (MiFreeform.me?.getControlService()?.execShell("am start -n ${config.packageName}/${config.activityName} --user ${config.userId} --display ${virtualDisplay.display.displayId}", false) == true) {
+                    if (MiFreeform.me?.getControlService()?.execShell("am start -n ${config.componentName!!.packageName}/${config.componentName!!.className} --user ${config.userId} --display ${virtualDisplay.display.displayId}", false) == true) {
                         FreeformHelper.addFreeformToSet(this@FreeformStudyViewNew)
                         firstInit = false
                     }
@@ -675,7 +675,7 @@ class FreeformStudyViewNew(
 //            MiFreeform.miFreeformViewModel.getControlService()?.moveStack(virtualDisplay.display.displayId)
 //        }
         if (MiFreeform.me?.getControlService()?.moveStack(virtualDisplay.display.displayId) != true) {
-            MiFreeform.me?.getControlService()?.execShell("am start -n ${config.packageName}/${config.activityName} --user ${config.userId} --display 0", false)
+            MiFreeform.me?.getControlService()?.execShell("am start -n ${config.componentName!!.packageName}/${config.componentName!!.className} --user ${config.userId} --display 0", false)
         }
         destroy()
     }
@@ -1144,19 +1144,12 @@ class FreeformStudyViewNew(
     init {
         if (MiFreeform.me?.getControlService()?.asBinder()?.pingBinder() == true) {
             //尝试恢复小窗状态
-            if (FreeformHelper.isAppInFreeform(config.packageName, config.userId)) {
-                FreeformHelper.getFreeformStackSet().getByPackageName(config.packageName, config.userId)?.moveToFirst()
+            if (FreeformHelper.isAppInFreeform(config.componentName!!, config.userId)) {
+                FreeformHelper.getFreeformStackSet().getByComponentName(config.componentName!!, config.userId)?.moveToFirst()
             } else {
                 initSystemService()
                 initConfig()
 
-                //youtube单独适配
-                if (config.packageName == YOUTUBE) {
-                    config.activityName = YOUTUBE_ACTIVITY
-                }
-                if (config.packageName == QQ) {
-                    config.freeformDpi = FreeformHelper.getScreenDpi(context)
-                }
                 initView()
             }
         }

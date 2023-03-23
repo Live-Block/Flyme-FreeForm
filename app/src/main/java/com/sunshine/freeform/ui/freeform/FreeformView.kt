@@ -372,7 +372,7 @@ class FreeformView(
     private fun initDisplay() {
         try {
             virtualDisplay = displayManager.createVirtualDisplay(
-                "MiFreeform@${config.packageName}@${config.userId}",
+                "MiFreeform@${config.componentName}@${config.userId}",
                 freeformScreenWidth,
                 freeformScreenHeight,
                 config.freeformDpi,
@@ -457,7 +457,7 @@ class FreeformView(
                         if (config.intent is Intent) {
                             result = callIntent(config.intent as Intent, options)
                         } else if (config.intent is PendingIntent) {
-                            val intent = Intent(Intent.ACTION_MAIN).setComponent(ComponentName(config.packageName, config.activityName)).setPackage(config.packageName).addCategory(Intent.CATEGORY_LAUNCHER)
+                            val intent = Intent(Intent.ACTION_MAIN).setComponent(config.componentName).setPackage(config.componentName!!.packageName).addCategory(Intent.CATEGORY_LAUNCHER)
                             result = callIntent(intent, options)
                             if (result in 0..99) {
                                 callPendingIntent(config.intent as PendingIntent, options)
@@ -472,10 +472,6 @@ class FreeformView(
                             Toast.makeText(context, "Start Not Success Result Code: $result", Toast.LENGTH_SHORT).show()
                         }
 
-                        FreeformHelper.addFreeformToSet(this@FreeformView)
-                        firstInit = false
-                    } else
-                    if (MiFreeform.me?.getControlService()?.execShell("am start -n ${config.packageName}/${config.activityName} --user ${config.userId} --display ${virtualDisplay.display.displayId}", false) == true) {
                         FreeformHelper.addFreeformToSet(this@FreeformView)
                         firstInit = false
                     }
@@ -1171,8 +1167,6 @@ class FreeformView(
                                 if (result < 0) {
                                     Toast.makeText(context, "Start Failed Result Code: $result", Toast.LENGTH_SHORT).show()
                                 }
-                            } else {
-                                MiFreeform.me?.getControlService()?.execShell("am start -n ${config.packageName}/${config.activityName} --user ${config.userId} --display 0", false)
                             }
                             destroy()
                         }
@@ -1679,28 +1673,25 @@ class FreeformView(
     }
 
     init {
-        if (config.packageName.isEmpty() && config.intent == null) {
+        if (config.componentName == null && config.intent == null) {
             Toast.makeText(context,"Missing Args Start Failed", Toast.LENGTH_SHORT).show()
-        } else
-        if (MiFreeform.me?.getControlService()?.asBinder()?.pingBinder() == true) {
-            if (config.packageName.isEmpty()) {
+        } else if (MiFreeform.me?.getControlService()?.asBinder()?.pingBinder() == true) {
+            if (config.componentName == null) {
                 if (config.intent is Intent) {
                     val intent = config.intent as Intent
-                    if (intent.component != null) {
-                        config.packageName = intent.component!!.packageName
-                    }
-                } else if (config.intent is PendingIntent) {
-                    val pendingIntent = config.intent as PendingIntent
-                    config.packageName = pendingIntent.creatorPackage!!
+                    config.componentName = intent.component
                 }
+            }
+            if (config.intent == null) {
+                config.intent = Intent().setComponent(config.componentName)
             }
             if (config.userId == -1) {
                 config.userId = Refine.unsafeCast<ContextHidden>(context).userId
             }
             //尝试恢复小窗状态
             //优化 如果小窗移动到屏幕外导致无法控制，可以尝试从侧边栏再次点击该应用以移动到屏幕中心 q220917.4
-            if (FreeformHelper.isAppInFreeform(config.packageName, config.userId)) {
-                val freeformView = FreeformHelper.getFreeformStackSet().getByPackageName(config.packageName, config.userId)
+            if (FreeformHelper.isAppInFreeform(config.componentName!!, config.userId)) {
+                val freeformView = FreeformHelper.getFreeformStackSet().getByComponentName(config.componentName!!, config.userId)
                 if (config.intent is PendingIntent) {
                     freeformView?.callPendingIntent(config.intent as PendingIntent)
                 } else {
@@ -1713,8 +1704,7 @@ class FreeformView(
                 initConfig()
                 initView()
             }
-        }
-        else {
+        } else {
             MiFreeform.me?.initShizuku()
             Toast.makeText(context, context.getString(R.string.service_not_running), Toast.LENGTH_SHORT).show()
         }
@@ -1864,7 +1854,7 @@ class FreeformView(
         override fun onTaskMovedToFront(taskInfo: ActivityManager.RunningTaskInfo) {
             try {
                 val userId = taskInfo::class.java.getField("userId").get(taskInfo)
-                if (taskInfo.baseActivity!!.packageName == config.packageName && userId == config.userId) {
+                if (taskInfo.baseActivity!!.packageName == config.componentName!!.packageName && userId == config.userId) {
                     taskId = taskInfo.taskId
                 }
             } catch (e: Exception) { }
