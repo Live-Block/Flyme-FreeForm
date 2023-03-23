@@ -24,6 +24,8 @@ import com.sunshine.freeform.ui.floating_apps_sort.FloatingAppsSortActivity
 import com.sunshine.freeform.ui.choose_apps.ChooseAppsActivity
 import com.sunshine.freeform.room.FreeFormAppsEntity
 import com.sunshine.freeform.ui.freeform.*
+import dev.rikka.tools.refine.Refine
+import rikka.shizuku.SystemServiceHelper
 import java.lang.reflect.Method
 
 /**
@@ -133,7 +135,7 @@ class ChooseAppFloatingAdapter(
                         FreeformView(
                             FreeformConfig(
                                 userId = apps[position - 1 - miniFreeformSize].userId,
-                                intent = Intent().setComponent(ComponentName(packageName, activityName))
+                                intent = Intent(Intent.ACTION_MAIN).setComponent(ComponentName(packageName, activityName)).setPackage(packageName).addCategory(Intent.CATEGORY_LAUNCHER)
                             ),
                             context
                         )

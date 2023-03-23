@@ -440,7 +440,7 @@ class FreeformView(
                                 null, options.toBundle(), config.userId
                             )
                         } else if (config.intent is PendingIntent) {
-                            val intent = Intent().setComponent(ComponentName(config.packageName, config.activityName))
+                            val intent = Intent(Intent.ACTION_MAIN).setComponent(ComponentName(config.packageName, config.activityName)).setPackage(config.packageName).addCategory(Intent.CATEGORY_LAUNCHER)
                             result = activityManager!!.startActivityAsUserWithFeature(
                                 null, shell, null, intent,
                                 intent.type, null, null, 0, 0,
