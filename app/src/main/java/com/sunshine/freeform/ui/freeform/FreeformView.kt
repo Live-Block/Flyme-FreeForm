@@ -234,8 +234,8 @@ class FreeformView(
         config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
 
         initRealScreenSize()
-        initRootSize()
         initMargin()
+        initRootSize()
         initFloatViewSize()
 
         config.freeformDpi = FreeformHelper.getScreenDpi(context)
@@ -657,8 +657,8 @@ class FreeformView(
         config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
 
         initRealScreenSize()
-        initRootSize()
         initMargin()
+        initRootSize()
         initFloatViewSize()
 
         refreshFreeformSize()
@@ -764,7 +764,7 @@ class FreeformView(
         if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
             if (freeformHeight > rootWidth) {
                 freeformWidth = (rootWidth - (rootWidth * 0.05)).roundToInt()
-                freeformHeight = (rootWidth * config.widthHeightRatio).roundToInt()
+                freeformHeight = ((freeformWidth + cardHeightMargin) * config.widthHeightRatio) .roundToInt()
             }
             if (!FreeformHelper.screenIsPortrait(screenRotation)) {
                 freeformWidth = (realScreenWidth / 2 + cardWidthMargin).roundToInt()
@@ -981,7 +981,7 @@ class FreeformView(
                 freeformHeight += dy.roundToInt()
                 freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
                 if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
-                    freeformWidth = (freeformHeight / config.widthHeightRatio).roundToInt()
+                    freeformWidth = ((freeformHeight - (cardHeightMargin * config.widthHeightRatio)) / config.widthHeightRatio).roundToInt()
                 }
 
                 mScaleX = freeformWidth / rootWidth.toFloat()
@@ -996,7 +996,7 @@ class FreeformView(
                 freeformWidth += dx.roundToInt()
                 freeformHeight = ((freeformWidth / config.widthHeightRatio) - cardWidthMargin).roundToInt()
                 if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
-                    freeformHeight = (freeformWidth * config.widthHeightRatio).roundToInt()
+                    freeformHeight = ((freeformWidth + cardHeightMargin) * config.widthHeightRatio).roundToInt()
                 }
 
                 mScaleX = freeformWidth / rootWidth.toFloat()
