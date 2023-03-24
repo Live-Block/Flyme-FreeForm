@@ -7,7 +7,6 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.*
-import android.content.ComponentName
 import android.content.Context
 import android.content.ContextHidden
 import android.content.Intent
@@ -28,6 +27,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import com.sunshine.freeform.R
 import com.sunshine.freeform.app.MiFreeform
 import com.sunshine.freeform.databinding.ViewFreeformFlymeBinding
+import com.sunshine.freeform.utils.ServiceUtils
 import dev.rikka.tools.refine.Refine
 import kotlinx.android.synthetic.main.view_bar.view.*
 import kotlinx.android.synthetic.main.view_bar_flyme.view.*
@@ -36,8 +36,6 @@ import kotlinx.android.synthetic.main.view_freeform.view.*
 import kotlinx.android.synthetic.main.view_freeform.view.root
 import kotlinx.android.synthetic.main.view_freeform_flyme.view.*
 import kotlinx.coroutines.*
-import rikka.shizuku.ShizukuBinderWrapper
-import rikka.shizuku.SystemServiceHelper
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.util.*
@@ -50,12 +48,12 @@ class FreeformView(
     private val context: Context,
 ) : FreeformViewAbs(config), View.OnTouchListener {
     //服务
-    private val windowManager: WindowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    private val displayManager: DisplayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
-    private var activityTaskManager: IActivityTaskManager? = null
-    private var activityManager: IActivityManager? = null
-    private var inputManager: IInputManager? = null
-    private var iWindowManager: IWindowManager? = null
+    private val windowManager: WindowManager = ServiceUtils.windowManager
+    private val displayManager: DisplayManager = ServiceUtils.displayManager
+    private var activityTaskManager: IActivityTaskManager? = ServiceUtils.activityTaskManager
+    private var activityManager: IActivityManager? = ServiceUtils.activityManager
+    private var inputManager: IInputManager? = ServiceUtils.inputManager
+    private var iWindowManager: IWindowManager? = ServiceUtils.iWindowManager
 
     private val shell = "com.android.shell"
 
@@ -227,20 +225,9 @@ class FreeformView(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             setDisplayIdMethod = MotionEvent::class.java.getMethod("setDisplayId", Int::class.javaPrimitiveType)
         }
-        try {
-            activityTaskManager = IActivityTaskManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("activity_task")))
-            //目前仅支持Android Q及以上版本
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                activityTaskManager?.registerTaskStackListener(taskStackListener)
-            }
-            activityManager = IActivityManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("activity")))
-        }catch (e: Exception) {}
-        try {
-            inputManager = IInputManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("input")))
-        }catch (e: Exception) {}
-        try {
-            iWindowManager = IWindowManager.Stub.asInterface(ShizukuBinderWrapper(SystemServiceHelper.getSystemService("window")))
-        } catch (e: Exception) {}
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            activityTaskManager?.registerTaskStackListener(taskStackListener)
+        }
     }
 
     private fun initConfig() {

@@ -12,6 +12,7 @@ import com.google.android.material.color.DynamicColors
 import com.sunshine.freeform.BuildConfig
 import com.sunshine.freeform.IControlService
 import com.sunshine.freeform.service.ControlService
+import com.sunshine.freeform.utils.ServiceUtils
 import org.lsposed.hiddenapibypass.HiddenApiBypass
 import rikka.shizuku.Shizuku
 import rikka.sui.Sui
@@ -115,6 +116,7 @@ class MiFreeform : Application() {
     fun initShizuku() {
         if (controlService?.asBinder()?.pingBinder() == true) return
         bindShizukuService()
+        ServiceUtils.initWithShizuku(this)
     }
 
     fun initShizuku(callback: ShizukuBindCallback) {
