@@ -330,10 +330,8 @@ class FreeformView(
         binding = ViewFreeformFlymeBinding.bind(LayoutInflater.from(context).inflate(R.layout.view_freeform_flyme, null, false))
 
         binding.root.setOnTouchListener(this)
-        binding.bottomBar.middleView.apply {
-            visibility = View.VISIBLE
-            setOnTouchListener(this@FreeformView)
-        }
+        binding.bottomBar.middleView.setOnTouchListener(this@FreeformView)
+        binding.bottomBar.sideView.setOnTouchListener(this@FreeformView)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             binding.textureView.setOnTouchListener(touchListener)
@@ -344,12 +342,6 @@ class FreeformView(
         if (!FreeformHelper.screenIsPortrait(screenRotation)) {
             hangUpPosition[0] = true
             binding.apply {
-                bottomBar.root.visibility = View.GONE
-                sideBar.root.apply {
-                    visibility = View.VISIBLE
-                    sideView.visibility = View.VISIBLE
-                    sideView.setOnTouchListener(this@FreeformView)
-                }
                 (cardRoot.layoutParams as ConstraintLayout.LayoutParams).apply {
                     topMargin = 0
                     bottomMargin = 0
@@ -360,12 +352,46 @@ class FreeformView(
 
         refreshFreeformSize()
 
+        initFloatBar()
+
         resetScale()
 
         binding.freeformRoot.alpha = 1f
         binding.textureView.alpha = 0f
 
         initDisplay()
+    }
+
+    private fun initFloatBar() {
+        if (FreeformHelper.screenIsPortrait(screenRotation)) {
+            binding.bottomBar.apply {
+                root.layoutParams = ConstraintLayout.LayoutParams(
+                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+                    barHeight.roundToInt(),
+                ).apply {
+                    topToBottom = R.id.cardRoot
+                    startToEnd = ConstraintLayout.LayoutParams.UNSET
+                    bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+                    endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                }
+                middleView.visibility = View.VISIBLE
+                sideView.visibility = View.GONE
+            }
+        } else {
+            binding.bottomBar.apply {
+                root.layoutParams = ConstraintLayout.LayoutParams(
+                    barHeight.roundToInt(),
+                    ConstraintLayout.LayoutParams.MATCH_PARENT,
+                ).apply {
+                    topToTop = ConstraintLayout.LayoutParams.PARENT_ID
+                    startToEnd = R.id.cardRoot
+                    bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+                    endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                }
+                middleView.visibility = View.GONE
+                sideView.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun initDisplay() {
@@ -662,23 +688,10 @@ class FreeformView(
         initFloatViewSize()
 
         refreshFreeformSize()
+        initFloatBar()
 
         val location = genFloatViewLocation()
         lastFloatViewLocation = location
-
-        binding.bottomBar.root.visibility = View.VISIBLE
-        binding.sideBar.root.visibility = View.GONE
-
-        if(!FreeformHelper.screenIsPortrait(screenRotation)) {
-            binding.apply {
-                bottomBar.root.visibility = View.GONE
-                sideBar.root.apply {
-                    visibility = View.VISIBLE
-                    sideView.visibility = View.VISIBLE
-                    sideView.setOnTouchListener(this@FreeformView)
-                }
-            }
-        }
 
         refreshTouchScale()
         refreshActionScale()
@@ -1020,7 +1033,6 @@ class FreeformView(
                         ObjectAnimator.ofFloat(binding.freeformRoot, View.SCALE_X, mScaleX, scaleX),
                         ObjectAnimator.ofFloat(binding.freeformRoot, View.SCALE_Y, mScaleY, scaleY),
                         ObjectAnimator.ofFloat(binding.bottomBar.root, View.ALPHA, 0f),
-                        ObjectAnimator.ofFloat(binding.sideBar.root, View.ALPHA, 0f),
                         cardViewMarginAnim(
                             (binding.cardRoot.layoutParams as ConstraintLayout.LayoutParams).topMargin,
                             (binding.cardRoot.layoutParams as ConstraintLayout.LayoutParams).bottomMargin,
@@ -1128,7 +1140,6 @@ class FreeformView(
                         ObjectAnimator.ofFloat(binding.freeformRoot, View.SCALE_X, mScaleX, 1f),
                         ObjectAnimator.ofFloat(binding.freeformRoot, View.SCALE_Y, mScaleY, 1f),
                         ObjectAnimator.ofFloat(binding.bottomBar.root, View.ALPHA, 0f),
-                        ObjectAnimator.ofFloat(binding.sideBar.root, View.ALPHA, 0f),
                         cardViewMarginAnim(
                             (binding.cardRoot.layoutParams as ConstraintLayout.LayoutParams).topMargin,
                             (binding.cardRoot.layoutParams as ConstraintLayout.LayoutParams).bottomMargin,
@@ -1499,11 +1510,6 @@ class FreeformView(
                         playTogether(
                             ObjectAnimator.ofFloat(
                                 binding.bottomBar.root,
-                                View.ALPHA,
-                                1f
-                            ),
-                            ObjectAnimator.ofFloat(
-                                binding.sideBar.root,
                                 View.ALPHA,
                                 1f
                             ),
