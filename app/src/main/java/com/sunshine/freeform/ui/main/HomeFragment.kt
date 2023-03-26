@@ -39,14 +39,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
     companion object {
         private const val TAG = "HomeFragment"
-        private const val MY_COOLAPK_PAGE = "http://www.coolapk.com/u/810697"
-        private const val COOLAPK_PACKAGE = "com.coolapk.market"
-        private const val MARKET_ID = "market://details?id=com.sunshine.freeform"
-        private const val QQ_CHANNEL = "https://qun.qq.com/qqweb/qunpro/share?_wv=3&_wwv=128&inviteCode=XKL1t&from=246610&biz=ka"
-        private const val QQ_GROUP2 = "https://jq.qq.com/?_wv=1027&k=Ima6Egv1"
-        private const val TELEGRAM_URL = "https://t.me/+8M3IrjRFiPE2NGE9"
-        private const val OPEN_SOURCE_URL = "https://github.com/sunshine0523/Mi-FreeForm"
-        private const val PAY_PAL_URL = "https://www.paypal.com/paypalme/mifreeform"
         private const val COMMON_QUESTION_ZH = "https://github.com/sunshine0523/Mi-FreeForm/blob/master/qa_zh-Hans.md"
         private const val OPEN_API_ZH = "https://github.com/sunshine0523/Mi-FreeForm/blob/master/open_api_zh-Hans.md"
     }
@@ -77,16 +69,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
         binding.buttonGuide.setOnClickListener(this)
         binding.buttonQuestion.setOnClickListener(this)
         binding.buttonOpenApi.setOnClickListener(this)
-        binding.buttonDonateAlipay.setOnClickListener(this)
-        binding.buttonDonateWechatPay.setOnClickListener(this)
-        binding.buttonDonatePaypal.setOnClickListener(this)
-        binding.buttonStar.setOnClickListener(this)
-        binding.buttonCoolapk.setOnClickListener(this)
-        binding.buttonQqGroup.setOnClickListener(this)
-        binding.buttonQqGroup2.setOnClickListener(this)
-        binding.buttonQqChannel.setOnClickListener(this)
-        binding.buttonTelegram.setOnClickListener(this)
-        binding.buttonOpenSource.setOnClickListener(this)
     }
 
     override fun onResume() {
@@ -193,93 +175,6 @@ class HomeFragment : Fragment(), View.OnClickListener {
 
             R.id.button_open_api -> {
                 val uri = Uri.parse(OPEN_API_ZH)
-                val intent = Intent(Intent.ACTION_VIEW, uri)
-                startActivity(intent)
-            }
-
-            R.id.button_donate_alipay -> {
-                try {
-                    val intent = Intent()
-                    intent.action = "android.intent.action.VIEW"
-                    val payUrl = "HTTPS://QR.ALIPAY.COM/fkx18133hemtjbe1id3m558"
-                    intent.data = Uri.parse("alipayqr://platformapi/startapp?saId=10000007&clientVersion=3.7.0.0718&qrcode=" + payUrl);
-                    startActivity(intent)
-                }
-                catch (e: Exception) {
-                    Snackbar.make(binding.root, getString(R.string.open_alipay_fail), Snackbar.LENGTH_SHORT).show()
-                }
-            }
-            R.id.button_donate_wechat_pay -> {
-                MaterialAlertDialogBuilder(requireContext()).apply {
-                    setTitle(getString(R.string.donate_wechat_title))
-                    val imageView = ImageView(requireContext()).apply {
-                        setImageResource(R.mipmap.wechat)
-                    }
-                    setView(imageView)
-                    setPositiveButton(getString(R.string.done)) {_, _ ->}
-                    create().show()
-                }
-            }
-            R.id.button_donate_paypal -> {
-                val uri = Uri.parse(PAY_PAL_URL)
-                val intent = Intent(Intent.ACTION_VIEW, uri)
-                startActivity(intent)
-            }
-            R.id.button_star -> {
-                try {
-                    val localIntent = Intent(Intent.ACTION_VIEW, Uri.parse(MARKET_ID))
-                    localIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    localIntent.`package` = COOLAPK_PACKAGE
-                    startActivity(localIntent)
-                } catch (e: Exception) {
-                    try {
-                        val localIntent = Intent(Intent.ACTION_VIEW, Uri.parse(MARKET_ID))
-                        localIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        startActivity(localIntent)
-                    }catch (e : Exception){
-                        Toast.makeText(requireContext(), getString(R.string.start_market_fail), Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-            R.id.button_coolapk -> {
-                try {
-                    val str = MY_COOLAPK_PAGE
-                    val localIntent = Intent(Intent.ACTION_VIEW, Uri.parse(str))
-                    localIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    localIntent.`package` = COOLAPK_PACKAGE
-                    startActivity(localIntent)
-                } catch (e: Exception) {
-                    Toast.makeText(requireContext(), getString(R.string.start_coolapk_fail), Toast.LENGTH_SHORT).show()
-                }
-            }
-            R.id.button_qq_group -> {
-                try {
-                    val intent = Intent()
-                    val key = "qNbvThGAg7lPnCfLNWL-NKw0Teaso05e"
-                    intent.data =
-                        Uri.parse("mqqopensdkapi://bizAgent/qm/qr?url=http%3A%2F%2Fqm.qq.com%2Fcgi-bin%2Fqm%2Fqr%3Ffrom%3Dapp%26p%3Dandroid%26jump_from%3Dwebapi%26k%3D$key")
-                    startActivity(intent)
-                } catch (e: Exception) {
-                    Toast.makeText(requireContext(), getString(R.string.start_qq_fail), Toast.LENGTH_SHORT).show()
-                }
-            }
-            R.id.button_qq_group2 -> {
-                val uri = Uri.parse(QQ_GROUP2)
-                val intent = Intent(Intent.ACTION_VIEW, uri)
-                startActivity(intent)
-            }
-            R.id.button_qq_channel -> {
-                val uri = Uri.parse(QQ_CHANNEL)
-                val intent = Intent(Intent.ACTION_VIEW, uri)
-                startActivity(intent)
-            }
-            R.id.button_telegram -> {
-                val uri = Uri.parse(TELEGRAM_URL)
-                val intent = Intent(Intent.ACTION_VIEW, uri)
-                startActivity(intent)
-            }
-            R.id.button_open_source -> {
-                val uri = Uri.parse(OPEN_SOURCE_URL)
                 val intent = Intent(Intent.ACTION_VIEW, uri)
                 startActivity(intent)
             }
