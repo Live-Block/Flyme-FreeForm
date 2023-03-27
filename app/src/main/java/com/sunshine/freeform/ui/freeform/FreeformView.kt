@@ -569,20 +569,20 @@ class FreeformView(
         }
 
         val backgroundViewLayoutParams = WindowManager.LayoutParams().apply {
-            alpha = 0f
+            alpha = 0.001f
+            format = PixelFormat.RGBA_8888
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             width = WindowManager.LayoutParams.MATCH_PARENT
             height = WindowManager.LayoutParams.MATCH_PARENT
-            flags = WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+            flags = windowLayoutParams.flags
         }
 
         try {
+            windowManager.addView(backgroundView, backgroundViewLayoutParams)
             windowManager.addView(binding.root, windowLayoutParams)
         } catch (e: Exception) {
             try {
+                windowManager.removeViewImmediate(backgroundView)
                 windowManager.removeViewImmediate(binding.root)
             } catch (e: Exception) {}
 
