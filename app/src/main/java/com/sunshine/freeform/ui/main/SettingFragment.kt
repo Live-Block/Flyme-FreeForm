@@ -133,6 +133,7 @@ class SettingFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClick
                 }
             }
             NOTIFY_FREEFORM -> {
+                PermissionUtils.checkPostNotificationPermission(requireActivity())
                 if (newValue as Boolean && !PermissionUtils.checkNotificationListenerPermission(requireContext())) {
                     Toast.makeText(requireContext(), getString(R.string.require_notification), Toast.LENGTH_SHORT).show()
                     startActivity(Intent(requireActivity(), PermissionActivity::class.java))
@@ -151,6 +152,7 @@ class SettingFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClick
                         }
                     }
                     ForegroundService.SERVICE_TYPE -> {
+                        PermissionUtils.checkPostNotificationPermission(requireActivity())
                         if (PermissionUtils.isAccessibilitySettingsOn(requireContext())) {
                             accessibilityRFAR.launch(Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS))
                             Toast.makeText(requireContext(), getString(R.string.require_stop_accessibility), Toast.LENGTH_SHORT).show()

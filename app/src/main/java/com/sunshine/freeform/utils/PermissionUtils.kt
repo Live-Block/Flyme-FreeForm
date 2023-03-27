@@ -1,12 +1,13 @@
 package com.sunshine.freeform.utils
 
+import android.app.Activity
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.SettingNotFoundException
 import android.text.TextUtils.SimpleStringSplitter
-import androidx.annotation.RequiresApi
-import com.sunshine.freeform.service.KeepAliveService
+import androidx.core.app.ActivityCompat
 
 /**
  * @date 2022/8/26
@@ -55,4 +56,16 @@ object PermissionUtils {
         }
         return false
     }
+
+    fun checkPostNotificationPermission(activity: Activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.checkSelfPermission(activity,
+                    android.Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_DENIED) {
+                ActivityCompat.requestPermissions(activity,
+                    listOf(android.Manifest.permission.POST_NOTIFICATIONS).toTypedArray(),100);
+            }
+        }
+    }
+
 }
