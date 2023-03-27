@@ -56,7 +56,7 @@ class NotificationIntentService : Service() {
             val sp = getSharedPreferences(MiFreeform.APP_SETTINGS_NAME, Context.MODE_PRIVATE)
             FreeformView(
                 FreeformConfig(
-                    componentName = ComponentName(packageName, activityName),
+                    componentName = ComponentName(targetPackage, activityName),
                     userId = targetUserId,
                     intent = targetIntent,
                     maxHeight = FreeformHelper.getDefaultHeight(this)
