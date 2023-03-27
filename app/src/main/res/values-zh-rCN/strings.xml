@@ -109,6 +109,8 @@
     <string name="preference_start_by_recent_view_summary">如何在多任务界面打开米窗？在Xposed管理器中勾选桌面后，长按位于多任务界面的应用图标即可。该功能只支持类Launcher3桌面</string>
 
     <string name="category_freeform">小窗设置</string>
+    <string name="setting_freeform_dpi_title">小窗内界面缩放-竖屏</string>
+    <string name="setting_freeform_landscape_dpi_title">小窗内界面缩放-横屏</string>
     <string name="remember_position_title">记住悬浮小窗位置</string>
     <string name="remember_position_summary">记住上次悬浮时的位置</string>
     <string name="use_sui_refuse_to_fullscreen_title">使用Shizuku/Sui阻止应用跳出小窗到全屏(实验性)</string>
