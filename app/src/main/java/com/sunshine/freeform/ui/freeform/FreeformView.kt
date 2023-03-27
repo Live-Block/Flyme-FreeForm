@@ -68,6 +68,8 @@ class FreeformView(
     //界面binding
     private lateinit var binding: ViewFreeformFlymeBinding
 
+    private lateinit var backgroundView: View
+
     //判断是否是初次启动，防止屏幕旋转时再初始化
     private var firstInit = true
 
@@ -329,6 +331,10 @@ class FreeformView(
     private fun initView() {
         binding = ViewFreeformFlymeBinding.bind(LayoutInflater.from(context).inflate(R.layout.view_freeform_flyme, null, false))
 
+        backgroundView = View(context)
+        backgroundView.setOnTouchListener(this@FreeformView)
+        backgroundView.id = View.generateViewId()
+
         binding.root.setOnTouchListener(this)
         binding.bottomBar.middleView.setOnTouchListener(this@FreeformView)
         binding.bottomBar.sideView.setOnTouchListener(this@FreeformView)
@@ -565,6 +571,17 @@ class FreeformView(
             }
         }
 
+        val backgroundViewLayoutParams = WindowManager.LayoutParams().apply {
+            alpha = 0f
+            type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+            width = WindowManager.LayoutParams.MATCH_PARENT
+            height = WindowManager.LayoutParams.MATCH_PARENT
+            flags = WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+        }
+
         try {
             windowManager.addView(binding.root, windowLayoutParams)
         } catch (e: Exception) {
@@ -573,6 +590,9 @@ class FreeformView(
             } catch (e: Exception) {}
 
             if (Settings.canDrawOverlays(context)) {
+                windowManager.addView(backgroundView, backgroundViewLayoutParams.apply {
+                    type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                })
                 windowManager.addView(binding.root, windowLayoutParams.apply {
                     type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
                 })
@@ -841,7 +861,7 @@ class FreeformView(
         lastX = event.rawX
         lastY = event.rawY
         when(v.id) {
-            R.id.root -> {
+            R.id.root, backgroundView.id -> {
                 backgroundGestureDetector.onTouchEvent(event)
             }
             R.id.middleView -> {
@@ -855,7 +875,7 @@ class FreeformView(
 
     private fun handleMoveEvent(v: View, event: MotionEvent) {
         when(v.id) {
-            R.id.root -> {
+            R.id.root, backgroundView.id -> {
                 backgroundGestureDetector.onTouchEvent(event)
             }
             R.id.middleView -> {
@@ -885,7 +905,7 @@ class FreeformView(
 
     private fun handleUpEvent(v: View, event: MotionEvent) {
         when (v.id) {
-            R.id.root -> {
+            R.id.root, backgroundView.id -> {
                 backgroundGestureDetector.onTouchEvent(event)
             }
             R.id.middleView -> {
@@ -1073,6 +1093,7 @@ class FreeformView(
                                 interpolator = OvershootInterpolator(1.5f)
                                 addListener(object : AnimatorListener {
                                     override fun onAnimationStart(animation: Animator) {
+                                        backgroundView.visibility = View.GONE
                                         binding.textureView.setOnTouchListener(null)
                                         AnimatorSet().apply {
                                             duration = 100
@@ -1542,6 +1563,7 @@ class FreeformView(
                 }
 
                 override fun onAnimationEnd(animation: Animator) {
+                    backgroundView.visibility = View.VISIBLE
                 }
 
                 override fun onAnimationCancel(animation: Animator) {
@@ -1646,6 +1668,7 @@ class FreeformView(
         isDestroy = true
         try {
             windowManager.removeViewImmediate(binding.root)
+            windowManager.removeViewImmediate(backgroundView)
         }catch (e: Exception) { }
         virtualDisplay.surface.release()
         virtualDisplay.release()
