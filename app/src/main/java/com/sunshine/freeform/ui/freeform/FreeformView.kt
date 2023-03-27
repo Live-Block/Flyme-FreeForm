@@ -241,16 +241,13 @@ class FreeformView(
         initFloatViewSize()
 
         config.freeformDpi = FreeformHelper.getScreenDpi(context)
+        val tmpDpi = viewModel.getIntSp("freeform_scale", 50)
+        if (tmpDpi > 50) {
+            config.freeformDpi = tmpDpi
+        }
 
         //优化 QQ和微信也支持缩放了 q220917.1
         freeformScreenHeight = (min(realScreenHeight, realScreenWidth) / config.widthHeightRatio).roundToInt()
-        if (!config.useCustomConfig) {
-            freeformScreenHeight -=
-                if (FreeformHelper.screenIsPortrait(screenRotation)) viewModel.getIntSp("freeform_scale_portrait", 0)
-                else viewModel.getIntSp("freeform_scale_landscape", 0)
-
-            freeformScreenHeight = max(1, freeformScreenHeight)
-        }
         freeformScreenWidth = (freeformScreenHeight * config.widthHeightRatio).roundToInt()
 
         if (config.useCustomConfig) return

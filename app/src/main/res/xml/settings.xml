@@ -32,21 +32,13 @@
         app:iconSpaceReserved="false">
 
         <SeekBarPreference
-            android:key="freeform_scale_portrait"
+            android:key="freeform_scale"
             android:title="@string/setting_freeform_dpi_title"
             app:iconSpaceReserved="false"
-            app:defaultValue="0"
-            app:min="-500"
+            app:defaultValue="50"
+            app:min="50"
             android:max="500"
             app:showSeekBarValue="true"/>
-        <SeekBarPreference
-            android:key="freeform_scale_landscape"
-            android:title="@string/setting_freeform_landscape_dpi_title"
-            app:iconSpaceReserved="false"
-            app:defaultValue="0"
-            app:min="-500"
-            android:max="500"
-            app:showSeekBarValue="true" />
 
         <SeekBarPreference
             android:key="freeform_float_view_size"

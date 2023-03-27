@@ -67,8 +67,7 @@
     <string name="compatible_title">Compatibility mode startup freeform (experimental)</string>
     <string name="compatible_summary">Use compatibility mode to start the freeform, this mode can solve the problem of abnormal interface size such as software notification in the freeform and full screen. Compatibility mode widget interface scaling is supported in the next version.</string>
     <string name="category_freeform">freeform settings</string>
-    <string name="setting_freeform_dpi_title">Freeform interface scaling - vertical screen</string>
-    <string name="setting_freeform_landscape_dpi_title">Freeform interface scaling - horizontal screen</string>
+    <string name="setting_freeform_dpi_title">Freeform interface scaling</string>
     <string name="use_sui_refuse_to_fullscreen_title">Use Shizuku/Sui to prevent apps from popping out of freeform to full screen (experimental)</string>
     <string name="use_sui_refuse_to_fullscreen_summary">Currently only supports Android 12+. This feature is recommended to be enabled only when there is no Xposed or Xposed blocking fails. Try using Shizuku/Sui to prevent apps inside the freeform from popping out of the freeform to full screen. This function is still under testing, and there is no guarantee that the blocking will be successful, and it will cause problems such as screen flickering, freezing, etc.</string>
     <string name="category_floating">sidebar</string>
@@ -152,7 +151,7 @@
     <string name="open_api">Open API</string>
     <string name="preference_start_by_recent_view_summary">How to open Mi-Freeform in multi task interface? After checking the desktop in xposed manager, long press the application icon on the multitasking interface. This function only supports launcher3 desktop</string>
     <string name="preference_start_by_recent_view_title">Start in RecentView</string>
-    <string name="input_freeform_dpi">Range: - 500 ~ 500</string>
+    <string name="input_freeform_dpi">Range: 50 ~ 500</string>
     <string name="freeform_dpi_dialog_title">Enter scale value</string>
     <string name="to_default">To default</string>
     <string name="recent_label">Running Freeform</string>

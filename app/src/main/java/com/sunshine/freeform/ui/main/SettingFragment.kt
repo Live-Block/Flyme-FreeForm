@@ -56,10 +56,7 @@ class SettingFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClick
         findPreference<SwitchPreference>(SHOW_FLOATING)!!.onPreferenceChangeListener = this
         findPreference<SwitchPreference>(NOTIFY_FREEFORM)!!.onPreferenceChangeListener = this
         findPreference<IntegerSimpleMenuPreference>(SERVICE_TYPE)!!.onPreferenceChangeListener = this
-        findPreference<SeekBarPreference>(FREEFORM_SCALE_PORTRAIT)!!.apply {
-            onPreferenceClickListener = this@SettingFragment
-        }
-        findPreference<SeekBarPreference>(FREEFORM_SCALE_LANDSCAPE)!!.apply {
+        findPreference<SeekBarPreference>(FREEFORM_SCALE)!!.apply {
             onPreferenceClickListener = this@SettingFragment
         }
     }
@@ -88,7 +85,7 @@ class SettingFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClick
                 }
                 Snackbar.make(requireView(), getString(R.string.reset_success), Snackbar.LENGTH_SHORT).show()
             }
-            FREEFORM_SCALE_PORTRAIT, FREEFORM_SCALE_LANDSCAPE -> {
+            FREEFORM_SCALE -> {
                 val editView = layoutInflater.inflate(R.layout.view_edit, null, false)
                 val til = editView.findViewById<TextInputLayout>(R.id.til_freeform_dpi)
                 val editText = editView.findViewById<AppCompatEditText>(R.id.edit_freeform_dpi)
@@ -100,7 +97,7 @@ class SettingFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClick
                     setPositiveButton(getString(R.string.done)) {dialog, _ ->
                         if (!editText.text.isNullOrBlank()) {
                             val newValue = editText.text!!.toString().toInt()
-                            if (newValue >= -500 && newValue <= 500) {
+                            if (newValue in 50..500) {
                                 (preference as SeekBarPreference).value = newValue
                             }
                         }
@@ -182,7 +179,6 @@ class SettingFragment : PreferenceFragmentCompat(), Preference.OnPreferenceClick
         private const val NOTIFY_FREEFORM = "notify_freeform"
         private const val RESET_OVERLAY_SETTING = "reset_overlay_setting"
         private const val SERVICE_TYPE = "service_type"
-        private const val FREEFORM_SCALE_PORTRAIT = "freeform_scale_portrait"
-        private const val FREEFORM_SCALE_LANDSCAPE = "freeform_scale_landscape"
+        private const val FREEFORM_SCALE = "freeform_scale"
     }
 }
