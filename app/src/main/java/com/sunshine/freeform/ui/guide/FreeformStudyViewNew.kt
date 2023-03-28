@@ -411,7 +411,7 @@ class FreeformStudyViewNew(
                 virtualDisplay.surface = Surface(surface)
 
                 if (firstInit) {
-                    if (MiFreeform.me?.getControlService()?.execShell("am start -n ${config.componentName!!.packageName}/${config.componentName!!.className} --user ${config.userId} --display ${virtualDisplay.display.displayId}", false) == true) {
+                    if (MiFreeform.me.controlService?.execShell("am start -n ${config.componentName!!.packageName}/${config.componentName!!.className} --user ${config.userId} --display ${virtualDisplay.display.displayId}", false) == true) {
                         FreeformHelper.addFreeformToSet(this@FreeformStudyViewNew)
                         firstInit = false
                     }
@@ -449,7 +449,7 @@ class FreeformStudyViewNew(
     }
 
     fun showWindow() {
-        if (MiFreeform.me?.getControlService() != null) {
+        if (MiFreeform.me.controlService != null) {
             if (initSuccess) {
                 if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_PORTRAIT) {
                     windowLayoutParams.apply {
@@ -674,8 +674,8 @@ class FreeformStudyViewNew(
 //        } else {
 //            MiFreeform.miFreeformViewModel.getControlService()?.moveStack(virtualDisplay.display.displayId)
 //        }
-        if (MiFreeform.me?.getControlService()?.moveStack(virtualDisplay.display.displayId) != true) {
-            MiFreeform.me?.getControlService()?.execShell("am start -n ${config.componentName!!.packageName}/${config.componentName!!.className} --user ${config.userId} --display 0", false)
+        if (MiFreeform.me.controlService?.moveStack(virtualDisplay.display.displayId) != true) {
+            MiFreeform.me.controlService?.execShell("am start -n ${config.componentName!!.packageName}/${config.componentName!!.className} --user ${config.userId} --display 0", false)
         }
         destroy()
     }
@@ -980,7 +980,7 @@ class FreeformStudyViewNew(
                 xArray[i] = coords.x / scale
                 yArray[i] = coords.y / scale
             }
-            MiFreeform.me?.getControlService()?.touch(MotionEventBean(event.action, xArray, yArray, virtualDisplay.display.displayId))
+            MiFreeform.me.controlService?.touch(MotionEventBean(event.action, xArray, yArray, virtualDisplay.display.displayId))
         }
     }
 
@@ -1142,7 +1142,7 @@ class FreeformStudyViewNew(
     }
 
     init {
-        if (MiFreeform.me?.getControlService()?.asBinder()?.pingBinder() == true) {
+        if (MiFreeform.me.pingServiceBinder()) {
             //尝试恢复小窗状态
             if (FreeformHelper.isAppInFreeform(config.componentName!!, config.userId)) {
                 FreeformHelper.getFreeformStackSet().getByComponentName(config.componentName!!, config.userId)?.moveToFirst()

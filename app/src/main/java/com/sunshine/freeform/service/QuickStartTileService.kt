@@ -35,7 +35,7 @@ class QuickStartTileService : TileService() {
     @SuppressLint("WrongConstant")
     private fun collapseStatusBar() {
         if (Build.VERSION.SDK_INT >= 31) {
-            MiFreeform.me?.getControlService()?.execShell("cmd statusbar collapse", false)
+            MiFreeform.me.execShell("cmd statusbar collapse", false)
         } else {
             val service = getSystemService("statusbar") ?: return
             try {

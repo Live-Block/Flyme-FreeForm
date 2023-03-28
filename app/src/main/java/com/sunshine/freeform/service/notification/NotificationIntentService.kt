@@ -73,7 +73,7 @@ class NotificationIntentService : Service() {
     private fun collapseStatusBar() {
         //31==S
         if (Build.VERSION.SDK_INT >= 31) {
-            MiFreeform.me?.getControlService()?.execShell("cmd statusbar collapse", false)
+            MiFreeform.me.execShell("cmd statusbar collapse", false)
         } else {
             val service = getSystemService("statusbar") ?: return
             try {

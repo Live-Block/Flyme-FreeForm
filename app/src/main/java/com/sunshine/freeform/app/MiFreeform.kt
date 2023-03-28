@@ -24,7 +24,7 @@ import java.lang.StringBuilder
  */
 class MiFreeform : Application() {
     val isRunning = MutableLiveData(false)
-    private var controlService: IControlService? = null
+    var controlService: IControlService? = null
 
     private val onRequestPermissionResultListener =
         Shizuku.OnRequestPermissionResultListener { requestCode, grantResult ->
@@ -66,7 +66,7 @@ class MiFreeform : Application() {
     }
 
     companion object {
-        var me: MiFreeform? = null
+        lateinit var me: MiFreeform
         private const val TAG = "MiFreeForm"
         const val PACKAGE_NAME = "com.sunshine.freeform"
         //软件版本，该版本指需要再次展示介绍界面的版本
@@ -114,16 +114,22 @@ class MiFreeform : Application() {
     }
 
     fun initShizuku() {
-        if (controlService?.asBinder()?.pingBinder() == true) return
+        if (pingServiceBinder()) return
         bindShizukuService()
         ServiceUtils.initWithShizuku(this)
+    }
+
+    fun pingServiceBinder(): Boolean {
+        return controlService?.asBinder()?.pingBinder() == true
+    }
+
+    fun execShell(command: String, useRoot: Boolean): Boolean {
+        return controlService?.execShell(command, useRoot)!!
     }
 
     fun initShizuku(callback: ShizukuBindCallback) {
         initShizuku()
     }
-
-    fun getControlService() = controlService
 
     interface ShizukuBindCallback {
         fun onBind()
