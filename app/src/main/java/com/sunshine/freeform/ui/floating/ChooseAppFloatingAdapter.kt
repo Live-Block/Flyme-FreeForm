@@ -109,18 +109,29 @@ class ChooseAppFloatingAdapter(
                         .into(holder.icon)
                     holder.appName.text = getLabel(appInfo, apps[position - 1].userId)
                     holder.click.setOnClickListener {
-                        FreeformView(
-                            FreeformConfig(
-                                userId = apps[position - 1].userId,
-                                intent = Intent(Intent.ACTION_MAIN).setComponent(ComponentName(packageName, activityName)).setPackage(packageName).addCategory(Intent.CATEGORY_LAUNCHER)
-                            ),
-                            context
+                        context.startService(
+                            Intent(context, FreeformService::class.java)
+                                .setAction(FreeformService.ACTION_START_INTENT)
+                                .putExtra(Intent.EXTRA_USER, apps[position - 1].userId)
+                                .putExtra(Intent.EXTRA_INTENT,
+                                    Intent(Intent.ACTION_MAIN)
+                                        .setComponent(ComponentName(packageName, activityName))
+                                        .setPackage(packageName)
+                                        .addCategory(Intent.CATEGORY_LAUNCHER)
+                                )
                         )
                         callback.onClick()
                     }
                     //长按进入排序界面
                     holder.click.setOnLongClickListener {
                         context.startActivity(Intent(context, FloatingAppsSortActivity::class.java).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) })
+                        context.startService(
+                            Intent(context, FreeformService::class.java)
+                                .setAction(FreeformService.ACTION_START_INTENT)
+                                .putExtra(Intent.EXTRA_INTENT,
+                                    Intent(context, FloatingAppsSortActivity::class.java)
+                                )
+                        )
                         callback.onClick()
                         true
                     }

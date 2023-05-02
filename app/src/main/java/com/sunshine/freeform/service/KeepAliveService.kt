@@ -22,6 +22,7 @@ import com.sunshine.freeform.app.MiFreeform
 import com.sunshine.freeform.broadcast.StartFreeformReceiver
 import com.sunshine.freeform.ui.floating.ChooseAppFloatingView
 import com.sunshine.freeform.ui.freeform.FreeformConfig
+import com.sunshine.freeform.ui.freeform.FreeformService
 import kotlinx.coroutines.*
 import rikka.shizuku.ShizukuBinderWrapper
 import rikka.shizuku.SystemServiceHelper
@@ -165,6 +166,7 @@ class KeepAliveService : AccessibilityService(), SharedPreferences.OnSharedPrefe
 
         initConfig()
         chooseAppFloatingView = ChooseAppFloatingView(this, config.positionX, this)
+        startService(Intent(this, FreeformService::class.java))
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent) {

@@ -13,6 +13,7 @@ import android.os.IBinder
 import com.sunshine.freeform.app.MiFreeform
 import com.sunshine.freeform.ui.freeform.FreeformConfig
 import com.sunshine.freeform.ui.freeform.FreeformHelper
+import com.sunshine.freeform.ui.freeform.FreeformService
 import com.sunshine.freeform.ui.freeform.FreeformView
 import java.lang.reflect.Method
 
@@ -54,14 +55,12 @@ class NotificationIntentService : Service() {
                 }
             }
             val sp = getSharedPreferences(MiFreeform.APP_SETTINGS_NAME, Context.MODE_PRIVATE)
-            FreeformView(
-                FreeformConfig(
-                    componentName = ComponentName(targetPackage, activityName),
-                    userId = targetUserId,
-                    intent = targetIntent,
-                    maxHeight = FreeformHelper.getDefaultHeight(this)
-                ),
-                this
+            startService(
+                Intent(this, FreeformService::class.java)
+                    .setAction(FreeformService.ACTION_START_INTENT)
+                    .putExtra(Intent.EXTRA_USER, targetUserId)
+                    .putExtra(Intent.EXTRA_INTENT, targetIntent)
+                    .putExtra(Intent.EXTRA_COMPONENT_NAME, ComponentName(targetPackage, activityName))
             )
             stopSelf()
         } catch (e: PackageManager.NameNotFoundException) {

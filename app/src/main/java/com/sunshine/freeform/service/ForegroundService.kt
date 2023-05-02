@@ -23,6 +23,7 @@ import com.sunshine.freeform.app.MiFreeform
 import com.sunshine.freeform.broadcast.StartFreeformReceiver
 import com.sunshine.freeform.ui.floating.ChooseAppFloatingView
 import com.sunshine.freeform.ui.floating.FloatingActivity
+import com.sunshine.freeform.ui.freeform.FreeformService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -169,6 +170,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
 
             initConfig()
             chooseAppFloatingView = ChooseAppFloatingView(this, config.positionX, this)
+            startService(Intent(this, FreeformService::class.java))
         } else {
             //如果不是前台服务模式，则关闭服务
             stopSelf()

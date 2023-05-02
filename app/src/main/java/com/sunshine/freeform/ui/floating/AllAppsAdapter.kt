@@ -18,6 +18,7 @@ import com.github.promeg.pinyinhelper.Pinyin
 import com.sunshine.freeform.R
 import com.sunshine.freeform.systemapi.UserHandle
 import com.sunshine.freeform.ui.freeform.FreeformConfig
+import com.sunshine.freeform.ui.freeform.FreeformService
 import com.sunshine.freeform.ui.freeform.FreeformView
 import java.lang.reflect.Method
 import kotlin.collections.ArrayList
@@ -64,13 +65,16 @@ class AllAppsAdapter(
             holder.appName.text = allAppsList[position].label
             holder.click.setOnClickListener {
                 val userId = UserHandle.getUserId(allAppsList[position].user, allAppsList[position].applicationInfo.uid)
-
-                FreeformView(
-                    FreeformConfig(
-                        userId = userId,
-                        intent = Intent(Intent.ACTION_MAIN).setComponent(ComponentName(packageName, activityName)).setPackage(packageName).addCategory(Intent.CATEGORY_LAUNCHER),
-                    ),
-                    context
+                context.startService(
+                    Intent(context, FreeformService::class.java)
+                        .setAction(FreeformService.ACTION_START_INTENT)
+                        .putExtra(Intent.EXTRA_USER, userId)
+                        .putExtra(Intent.EXTRA_INTENT,
+                            Intent(Intent.ACTION_MAIN)
+                                .setComponent(ComponentName(packageName, activityName))
+                                .setPackage(packageName)
+                                .addCategory(Intent.CATEGORY_LAUNCHER)
+                        )
                 )
                 callback.onClick()
             }

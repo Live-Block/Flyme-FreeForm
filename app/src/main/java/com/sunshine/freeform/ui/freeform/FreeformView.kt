@@ -74,10 +74,10 @@ class FreeformView(
     private var firstInit = true
 
     //该小窗是否已经销毁
-    private var isDestroy = false
+    var isDestroy = false
 
     //是否处于隐藏状态，当打开米窗的正在运行小窗界面时，应当隐藏所有小窗
-    private var isHidden = false
+    var isHidden = false
 
     //小窗中应用的taskId
     private var taskId = -1
@@ -86,7 +86,7 @@ class FreeformView(
     private val windowLayoutParams = WindowManager.LayoutParams()
 
     //虚拟屏幕
-    private lateinit var virtualDisplay: VirtualDisplay
+    lateinit var virtualDisplay: VirtualDisplay
 
     //物理屏幕方向
     private var screenRotation = defaultDisplay.rotation
@@ -272,18 +272,20 @@ class FreeformView(
                         start()
                     }
                 }
+            } else {
+                initConfig()
             }
         }
 
     //是否处于挂起状态
-    private var isFloating = false
+    var isFloating = false
     //挂起位置，0：是否在左，1：是否在上
     private val hangUpPosition = booleanArrayOf(false, true)
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private val taskStackListener = MTaskStackListener()
 
-    private fun initSystemService() {
+    fun initSystemService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             setDisplayIdMethod = MotionEvent::class.java.getMethod("setDisplayId", Int::class.javaPrimitiveType)
         }
@@ -292,7 +294,7 @@ class FreeformView(
         }
     }
 
-    private fun initConfig() {
+    fun initConfig() {
         config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
 
         initFloatViewSize()
@@ -345,7 +347,7 @@ class FreeformView(
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    private fun initView() {
+    fun initView() {
         binding = ViewFreeformFlymeBinding.bind(LayoutInflater.from(context).inflate(R.layout.view_freeform_flyme, null, false))
 
         backgroundView = View(context)
@@ -418,19 +420,7 @@ class FreeformView(
     }
 
     private fun initDisplay() {
-        try {
-            virtualDisplay = displayManager.createVirtualDisplay(
-                "MiFreeform@${config.componentName}@${config.userId}",
-                freeformScreenWidth,
-                freeformScreenHeight,
-                config.freeformDpi,
-                null,
-                DisplayManager.VIRTUAL_DISPLAY_FLAG_PRESENTATION
-            )
-        } catch (e: Exception) {
-            Toast.makeText(context, context.getString(R.string.create_display_fail), Toast.LENGTH_SHORT).show()
-            return
-        }
+        virtualDisplay.resize(freeformScreenWidth, freeformScreenHeight, config.freeformDpi)
 
         screenListener.begin(object : ScreenListener.ScreenStateListener {
             override fun onScreenOn() {}
@@ -474,8 +464,6 @@ class FreeformView(
 
         initOrientationChangedListener()
         initTextureViewListener()
-
-        showWindow()
     }
 
     private fun initOrientationChangedListener() {
@@ -495,39 +483,6 @@ class FreeformView(
             ) {
                 surface.setDefaultBufferSize(freeformScreenWidth, freeformScreenHeight)
                 virtualDisplay.surface = Surface(surface)
-                val options = ActivityOptions.makeBasic().apply {
-                    launchDisplayId = virtualDisplay.display.displayId
-                }
-
-                if (firstInit) {
-                    if (config.intent != null) {
-                        var result = 0
-                        if (config.intent is Intent) {
-                            result = callIntent(config.intent as Intent, options)
-                        } else if (config.intent is PendingIntent) {
-                            val intent = Intent(Intent.ACTION_MAIN).setComponent(config.componentName).setPackage(config.componentName!!.packageName).addCategory(Intent.CATEGORY_LAUNCHER)
-                            result = callIntent(intent, options)
-                            if (result in 0..99) {
-                                callPendingIntent(config.intent as PendingIntent, options)
-                            }
-                        }
-                        if (result < 0) {
-                            Toast.makeText(context, "Start Failed Result Code: $result", Toast.LENGTH_SHORT).show()
-                            destroy()
-                            return
-                        }
-                        if (result >= 100) {
-                            Toast.makeText(context, "Start Not Success Result Code: $result", Toast.LENGTH_SHORT).show()
-                        }
-
-                        FreeformHelper.addFreeformToSet(this@FreeformView)
-                        firstInit = false
-                    }
-                    //启动失败
-                    else {
-                        destroy()
-                    }
-                }
             }
 
             override fun onSurfaceTextureSizeChanged(
@@ -556,7 +511,7 @@ class FreeformView(
         }
     }
 
-    private fun showWindow() {
+    fun showWindow() {
         windowLayoutParams.apply {
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             flags =
@@ -632,7 +587,7 @@ class FreeformView(
         }
     }
 
-    private fun callIntent(intent: Intent,
+    fun callIntent(intent: Intent,
                            options: ActivityOptions,
                            withoutAnim: Boolean = true,
                            userId: Int = config.userId,
@@ -652,7 +607,7 @@ class FreeformView(
         callPendingIntent(pendingIntent, options)
     }
 
-    private fun callPendingIntent(pendingIntent: PendingIntent,
+    fun callPendingIntent(pendingIntent: PendingIntent,
                                   options: ActivityOptions,
     ): Int {
         val pendingIntentHidden = Refine.unsafeCast<PendingIntentHidden>(pendingIntent)
@@ -848,12 +803,7 @@ class FreeformView(
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                if (FreeformHelper.isShowingFirst(this)) {
-                    handleDownEvent(v, event)
-                } else {
-                    //不是处于最上层要移动到最上层
-                    moveToFirst()
-                }
+                handleDownEvent(v, event)
             }
             MotionEvent.ACTION_MOVE -> {
                 handleMoveEvent(v, event)
@@ -1684,7 +1634,7 @@ class FreeformView(
             windowManager.removeViewImmediate(backgroundView)
         }catch (e: Exception) { }
         virtualDisplay.surface.release()
-        virtualDisplay.release()
+        virtualDisplay.surface = null
 
         try {
             iWindowManager?.removeRotationWatcher(iRotationWatcher)
@@ -1704,41 +1654,6 @@ class FreeformView(
     }
 
     init {
-        if (config.componentName == null && config.intent == null) {
-            Toast.makeText(context,"Missing Args Start Failed", Toast.LENGTH_SHORT).show()
-        } else if (MiFreeform.me.pingServiceBinder()) {
-            if (config.componentName == null) {
-                if (config.intent is Intent) {
-                    val intent = config.intent as Intent
-                    config.componentName = intent.component
-                }
-            }
-            if (config.intent == null) {
-                config.intent = Intent().setComponent(config.componentName)
-            }
-            if (config.userId == -1) {
-                config.userId = Refine.unsafeCast<ContextHidden>(context).userId
-            }
-            //尝试恢复小窗状态
-            //优化 如果小窗移动到屏幕外导致无法控制，可以尝试从侧边栏再次点击该应用以移动到屏幕中心 q220917.4
-            if (FreeformHelper.isAppInFreeform(config.componentName!!, config.userId)) {
-                val freeformView = FreeformHelper.getFreeformStackSet().getByComponentName(config.componentName!!, config.userId)
-                if (config.intent is PendingIntent) {
-                    freeformView?.callPendingIntent(config.intent as PendingIntent)
-                } else {
-                    freeformView?.toScreenCenter()
-                    freeformView?.moveToFirst()
-                }
-            } else {
-                FreeformHelper.checkAndClean()
-                initSystemService()
-                initConfig()
-                initView()
-            }
-        } else {
-            MiFreeform.me.initShizuku()
-            Toast.makeText(context, context.getString(R.string.service_not_running), Toast.LENGTH_SHORT).show()
-        }
     }
 
     //优化 将触摸设置为一等公民，以支持多点触控，也可以看一下为什么那样，多点触控就不支持了... q220906.1
@@ -1748,11 +1663,7 @@ class FreeformView(
             handleTouch(event)
             when(event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    if (FreeformHelper.isShowingFirst(this@FreeformView)) {
-                        touchId = R.id.textureView
-                    } else {
-                        moveToFirst()
-                    }
+                    touchId = R.id.textureView
                 }
                 MotionEvent.ACTION_UP -> {
                     touchId = -1
@@ -1809,11 +1720,7 @@ class FreeformView(
             handleTouch(event)
             when(event.action) {
                 MotionEvent.ACTION_DOWN -> {
-                    if (FreeformHelper.isShowingFirst(this@FreeformView)) {
-                        touchId = R.id.textureView
-                    } else {
-                        moveToFirst()
-                    }
+                    touchId = R.id.textureView
                 }
                 MotionEvent.ACTION_UP -> {
                     touchId = -1

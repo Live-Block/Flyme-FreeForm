@@ -99,6 +99,14 @@
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
         </service>
+        <service android:name=".ui.freeform.FreeformService"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.sunshine.freeform.ui.freeform.FreeformService"/>
+            </intent-filter>
+        </service>
+
         <service
             android:name=".service.ForegroundService"
             android:enabled="true"
