@@ -1876,8 +1876,12 @@ class FreeformView(
             if (taskId == -1 && newDisplayId == virtualDisplay.display.displayId) taskId = tId
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                if (config.useSuiRefuseToFullScreen && !isDestroy && tId == taskId && newDisplayId == Display.DEFAULT_DISPLAY) {
-                    activityTaskManager?.moveRootTaskToDisplay(tId, virtualDisplay.display.displayId)
+                if (!isDestroy && tId == taskId && newDisplayId == Display.DEFAULT_DISPLAY) {
+                    if (config.useSuiRefuseToFullScreen)
+                        activityTaskManager?.moveRootTaskToDisplay(tId, virtualDisplay.display.displayId)
+                    else
+                        // try relaunch
+                        callIntent(config.intent as Intent, ActivityOptions.makeBasic().setLaunchDisplayId(virtualDisplay.display.displayId))
                 }
             }
         }
