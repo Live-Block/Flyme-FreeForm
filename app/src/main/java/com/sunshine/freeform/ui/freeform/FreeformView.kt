@@ -1670,8 +1670,15 @@ class FreeformView(
         if (isHidden) {
             windowManager.removeView(hiddenView)
         }
+        if (isFloating) {
+            windowLayoutParams.x = 0
+            windowLayoutParams.y = 0
+        }
 
         isDestroy = true
+        isHidden = false
+        isFloating = false
+
         try {
             windowManager.removeViewImmediate(binding.root)
             windowManager.removeViewImmediate(backgroundView)
