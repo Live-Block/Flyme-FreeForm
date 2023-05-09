@@ -7,6 +7,7 @@ import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.*
+import android.content.ComponentName
 import android.content.Context
 import android.content.ContextHidden
 import android.content.Intent
@@ -1774,6 +1775,13 @@ class FreeformView(
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private inner class MTaskStackListener : TaskStackListener() {
+        override fun onTaskCreated(tId: Int, componentName: ComponentName?) {
+            if (config.intent !is Intent) return
+            if (componentName?.packageName == config.componentName?.packageName) {
+                taskId = tId
+            }
+        }
+
         override fun onTaskRemovalStarted(taskInfo: ActivityManager.RunningTaskInfo) {
             if (taskInfo.taskId == taskId) {
                 scope.launch(Dispatchers.Main) {
