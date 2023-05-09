@@ -327,6 +327,7 @@ class FreeformView(
             }
         }
         config.floatViewSize = (viewModel.getIntSp("freeform_float_view_size", 20)) / 100.toFloat()
+        config.dimAmount = (viewModel.getIntSp("freeform_dimming_amount", 20)) / 100.toFloat()
 
         viewModel.registerOnSharedPreferenceChangeListener(sharedPreferencesChangeListener)
 

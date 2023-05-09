@@ -49,6 +49,15 @@
             android:max="50"
             app:showSeekBarValue="true" />
 
+        <SeekBarPreference
+            android:key="freeform_dimming_amount"
+            android:title="Freeform dimming amount"
+            app:iconSpaceReserved="false"
+            app:defaultValue="20"
+            app:min="0"
+            android:max="100"
+            app:showSeekBarValue="true" />
+
         <SwitchPreference
             android:key="remember_freeform_position"
             android:title="@string/remember_position_title"
