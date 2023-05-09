@@ -462,9 +462,6 @@ class FreeformView(
                 }
             }
         })
-
-        initOrientationChangedListener()
-        initTextureViewListener()
     }
 
     private fun initOrientationChangedListener() {
@@ -513,6 +510,9 @@ class FreeformView(
     }
 
     fun showWindow() {
+        initOrientationChangedListener()
+        initTextureViewListener()
+
         windowLayoutParams.apply {
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             flags =
