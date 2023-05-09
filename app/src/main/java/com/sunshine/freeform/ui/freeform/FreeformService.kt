@@ -31,9 +31,6 @@ class FreeformService: Service() {
     override fun onCreate() {
         ServiceUtils.initWithShizuku(this)
 
-        mFreeformView = FreeformView(FreeformConfig(), this)
-        mFreeformView.virtualDisplay = mDisplay
-
         initFreeformView()
     }
 
@@ -69,6 +66,8 @@ class FreeformService: Service() {
     }
 
     private fun initFreeformView() {
+        mFreeformView = FreeformView(FreeformConfig(), this)
+        mFreeformView.virtualDisplay = mDisplay
         mFreeformView.initSystemService()
         mFreeformView.initConfig()
         mFreeformView.initView()
@@ -80,7 +79,6 @@ class FreeformService: Service() {
             intent = mIntent
         }
         if (mFreeformView.isDestroy) {
-            mFreeformView.isDestroy = false
             initFreeformView()
         }
         if (mFreeformView.isFloating || mFreeformView.isHidden) {
