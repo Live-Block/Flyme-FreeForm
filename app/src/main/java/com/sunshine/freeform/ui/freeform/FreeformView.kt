@@ -74,6 +74,8 @@ class FreeformView(
     //判断是否是初次启动，防止屏幕旋转时再初始化
     private var firstInit = true
 
+    private var isCalledIntent = false
+
     //该小窗是否已经销毁
     var isDestroy = false
 
@@ -590,6 +592,7 @@ class FreeformView(
                            withoutAnim: Boolean = true,
                            userId: Int = config.userId,
     ): Int {
+        if (isCalledIntent) return 0
         if (withoutAnim) intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NO_ANIMATION
         return activityManager!!.startActivityAsUserWithFeature(
             null, shell, null, intent,
@@ -1146,6 +1149,7 @@ class FreeformView(
                                 if (result < 0) {
                                     Toast.makeText(context, "Start Failed Result Code: $result", Toast.LENGTH_SHORT).show()
                                 }
+                                isCalledIntent = true
                             }
                             destroy()
                         }

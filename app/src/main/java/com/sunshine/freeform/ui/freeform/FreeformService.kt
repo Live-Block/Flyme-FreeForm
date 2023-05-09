@@ -39,6 +39,9 @@ class FreeformService: Service() {
             return START_NOT_STICKY
         when (intent.action) {
             ACTION_START_INTENT -> {
+                if (mFreeformView.isDestroy) {
+                    initFreeformView()
+                }
                 mUserId = intent.getIntExtra(Intent.EXTRA_USER, 0)
                 val result = startIntent(
                     parcelable = intent.getParcelableExtra(Intent.EXTRA_INTENT),
@@ -77,9 +80,6 @@ class FreeformService: Service() {
         mFreeformView.config.apply {
             userId = mUserId
             intent = mIntent
-        }
-        if (mFreeformView.isDestroy) {
-            initFreeformView()
         }
         if (mFreeformView.isFloating || mFreeformView.isHidden) {
             mFreeformView.moveToFirst()
