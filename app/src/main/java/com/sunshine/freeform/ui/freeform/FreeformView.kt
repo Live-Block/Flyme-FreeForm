@@ -298,8 +298,6 @@ class FreeformView(
     }
 
     fun initConfig() {
-        config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
-
         initFloatViewSize()
 
         config.freeformDpi = FreeformHelper.getScreenDpi(context)
@@ -669,8 +667,6 @@ class FreeformView(
     }
 
     private fun onScreenOrientationChanged() {
-        config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
-
         initFloatViewSize()
 
         refreshFreeformSize()
@@ -761,7 +757,7 @@ class FreeformView(
     }
 
     private fun refreshFreeformSize() {
-        freeformHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) (config.maxHeight * 0.75).roundToInt() else (config.maxHeight * 0.9).roundToInt()
+        freeformHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) (rootWidth / config.widthHeightRatio * 0.75).roundToInt() else (rootWidth * 0.9).roundToInt()
         freeformHeight += cardHeightMargin.roundToInt()
         freeformWidth = ((freeformHeight + cardWidthMargin) * config.widthHeightRatio).roundToInt()
         if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
