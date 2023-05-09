@@ -388,8 +388,6 @@ class FreeformView(
 
         binding.freeformRoot.alpha = 1f
         binding.textureView.alpha = 0f
-
-        initDisplay()
     }
 
     private fun initFloatBar() {
@@ -511,6 +509,7 @@ class FreeformView(
     }
 
     fun showWindow() {
+        initDisplay()
         initOrientationChangedListener()
         initTextureViewListener()
 
