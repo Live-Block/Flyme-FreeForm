@@ -46,7 +46,7 @@ import kotlin.math.min
 import kotlin.math.roundToInt
 
 class FreeformView(
-    override val config: FreeformConfig,
+    override var config: FreeformConfig,
     private val context: Context,
 ) : FreeformViewAbs(config), View.OnTouchListener {
     //服务

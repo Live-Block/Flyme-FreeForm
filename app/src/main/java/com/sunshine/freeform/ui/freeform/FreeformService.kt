@@ -13,9 +13,23 @@ import com.sunshine.freeform.utils.ServiceUtils
 
 class FreeformService: Service() {
     private lateinit var mFreeformView: FreeformView
-    private lateinit var mIntent: Parcelable
+    private var mConfig = FreeformConfig()
+    private var mIntent: Parcelable? = null
+        set(value) {
+            mConfig.intent = value
+            field = value
+        }
+    private var mComponentName: ComponentName? = null
+        set(value) {
+            mConfig.componentName = value
+            field = value
+        }
 
     private var mUserId: Int = 0
+        set(value) {
+            mConfig.userId = value
+            field = value
+        }
 
     private val mDisplay by lazy {
         ServiceUtils.displayManager.createVirtualDisplay(
@@ -77,10 +91,7 @@ class FreeformService: Service() {
     }
 
     private fun startFreeformView() {
-        mFreeformView.config.apply {
-            userId = mUserId
-            intent = mIntent
-        }
+        mFreeformView.config = mConfig
         if (mFreeformView.isFloating || mFreeformView.isHidden) {
             mFreeformView.moveToFirst()
         } else {
@@ -96,14 +107,16 @@ class FreeformService: Service() {
         var result = -1
         if (parcelable is Intent) {
             mIntent = parcelable
+            mComponentName = parcelable.component
             result = mFreeformView.callIntent(parcelable, options, userId = mUserId)
         } else if (componentName != null) {
+            mComponentName = componentName
             mIntent = Intent(Intent.ACTION_MAIN).apply {
                 component = componentName
                 setPackage(componentName.packageName)
                 addCategory(Intent.CATEGORY_LAUNCHER)
             }
-            result = mFreeformView.callIntent(mIntent as Intent, options)
+            result = mFreeformView.callIntent(mIntent as Intent, options, userId = mUserId)
             if (parcelable is PendingIntent) {
                 result = mFreeformView.callPendingIntent(parcelable, options)
             }
