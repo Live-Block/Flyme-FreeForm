@@ -11,6 +11,7 @@ import android.content.Context
 import android.content.ContextHidden
 import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
+import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
 import android.hardware.display.DisplayManager
@@ -84,6 +85,8 @@ class FreeformView(
 
     //叠加层Params
     private val windowLayoutParams = WindowManager.LayoutParams()
+
+    private val backgroundViewLayoutParams = WindowManager.LayoutParams()
 
     //虚拟屏幕
     lateinit var virtualDisplay: VirtualDisplay
@@ -351,6 +354,7 @@ class FreeformView(
         binding = ViewFreeformFlymeBinding.bind(LayoutInflater.from(context).inflate(R.layout.view_freeform_flyme, null, false))
 
         backgroundView = View(context)
+        backgroundView.setBackgroundColor(Color.TRANSPARENT)
         backgroundView.setOnTouchListener(this@FreeformView)
         backgroundView.id = View.generateViewId()
 
@@ -437,7 +441,6 @@ class FreeformView(
                             WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
                             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
                             WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-                    windowLayoutParams.dimAmount = 0f
                     windowManager.updateViewLayout(binding.root, windowLayoutParams)
                 }
             }
@@ -453,10 +456,8 @@ class FreeformView(
                             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                             WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
-                            WindowManager.LayoutParams.FLAG_DIM_BEHIND or
                             WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
 
-                    if (!isFloating) windowLayoutParams.dimAmount = config.dimAmount
                     windowManager.updateViewLayout(binding.root, windowLayoutParams)
                 }
             }
@@ -520,10 +521,8 @@ class FreeformView(
                         WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
                         WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
                         WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
-                        WindowManager.LayoutParams.FLAG_DIM_BEHIND or
                         WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
             format = PixelFormat.RGBA_8888
-            dimAmount = config.dimAmount
             windowAnimations = android.R.style.Animation_Dialog
         }
 
@@ -543,13 +542,13 @@ class FreeformView(
             }
         }
 
-        val backgroundViewLayoutParams = WindowManager.LayoutParams().apply {
-            alpha = 0.001f
+        backgroundViewLayoutParams.apply {
+            dimAmount = config.dimAmount
             format = PixelFormat.RGBA_8888
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             width = WindowManager.LayoutParams.MATCH_PARENT
             height = WindowManager.LayoutParams.MATCH_PARENT
-            flags = windowLayoutParams.flags
+            flags = windowLayoutParams.flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND
         }
 
         try {
@@ -1037,8 +1036,8 @@ class FreeformView(
                                         .apply {
                                             addUpdateListener {
                                                 windowManager.updateViewLayout(
-                                                    binding.root,
-                                                    windowLayoutParams.apply {
+                                                    backgroundView,
+                                                    backgroundViewLayoutParams.apply {
                                                         dimAmount = it.animatedValue as Float
                                                     })
                                             }
@@ -1443,7 +1442,7 @@ class FreeformView(
                 moveViewAnim(windowCoordinate, center),
                 ValueAnimator.ofFloat(0f, config.dimAmount).apply {
                     addUpdateListener {
-                        windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
+                        windowManager.updateViewLayout(backgroundView, backgroundViewLayoutParams.apply {
                             dimAmount = it.animatedValue as Float
                         })
                     }
