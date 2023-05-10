@@ -1,6 +1,7 @@
 package com.sunshine.freeform.ui.freeform
 
 import android.app.ActivityOptions
+import android.app.ActivityOptionsHidden
 import android.app.PendingIntent
 import android.app.PendingIntentHidden
 import android.app.Service
@@ -147,11 +148,13 @@ class FreeformService: Service() {
 
     private fun callPendingIntent(pendingIntent: PendingIntent,
                                   options: ActivityOptions,
+                                  displayId: Int = mDisplay.display.displayId,
     ): Int {
         val pendingIntentHidden = Refine.unsafeCast<PendingIntentHidden>(pendingIntent)
+        val activityOptionsHidden = Refine.unsafeCast<ActivityOptionsHidden>(options).setCallerDisplayId(displayId)
         return activityManager.sendIntentSender(
             pendingIntentHidden.target, pendingIntentHidden.whitelistToken, 0, null,
-            null, null, null, options.toBundle()
+            null, null, null, activityOptionsHidden.toBundle()
         )
     }
 
