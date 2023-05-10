@@ -1084,8 +1084,6 @@ class FreeformView(
                     )
                     addListener(object : AnimatorListener {
                         override fun onAnimationStart(animation: Animator) {
-                            isDestroy = true
-                            virtualDisplay.resize(realScreenWidth, realScreenHeight, FreeformHelper.getScreenDpi(context))
                         }
 
                         override fun onAnimationEnd(animation: Animator) {
