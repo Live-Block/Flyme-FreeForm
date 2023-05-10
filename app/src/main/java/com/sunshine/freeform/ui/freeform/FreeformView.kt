@@ -58,8 +58,6 @@ class FreeformView(
     private var inputManager: IInputManager? = ServiceUtils.inputManager
     private var iWindowManager: IWindowManager? = ServiceUtils.iWindowManager
 
-    private val shell = "com.android.shell"
-
     //ViewModel
     private val viewModel = FreeformViewModel(context)
 
@@ -585,37 +583,6 @@ class FreeformView(
         }
     }
 
-    fun callIntent(intent: Intent,
-                           options: ActivityOptions,
-                           withoutAnim: Boolean = true,
-                           userId: Int = config.userId,
-    ): Int {
-        if (isCalledIntent) return 0
-        if (withoutAnim) intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NO_ANIMATION
-        return activityManager!!.startActivityAsUserWithFeature(
-            null, shell, null, intent,
-            intent.type, null, null, 0, 0,
-            null, options.toBundle(), userId,
-        )
-    }
-
-    override fun callPendingIntent(pendingIntent: PendingIntent) {
-        val options = ActivityOptions.makeBasic().apply {
-            launchDisplayId = virtualDisplay.display.displayId
-        }
-        callPendingIntent(pendingIntent, options)
-    }
-
-    fun callPendingIntent(pendingIntent: PendingIntent,
-                                  options: ActivityOptions,
-    ): Int {
-        val pendingIntentHidden = Refine.unsafeCast<PendingIntentHidden>(pendingIntent)
-        return activityManager!!.sendIntentSender(
-            pendingIntentHidden.target, pendingIntentHidden.whitelistToken, 0, null,
-            null, null, null, options.toBundle()
-        )
-    }
-
     /**
      * 禁用更新过渡动画
      */
@@ -1134,21 +1101,11 @@ class FreeformView(
                         }
 
                         override fun onAnimationEnd(animation: Animator) {
-                            if (config.intent != null) {
-                                val options = ActivityOptions.makeBasic().apply {
-                                    launchDisplayId = Display.DEFAULT_DISPLAY
-                                }
-                                var result = 0
-                                if (config.intent is Intent) {
-                                    result = callIntent(config.intent as Intent, options)
-                                } else if (config.intent is PendingIntent) {
-                                    result = callPendingIntent(config.intent as PendingIntent, options)
-                                }
-                                if (result < 0) {
-                                    Toast.makeText(context, "Start Failed Result Code: $result", Toast.LENGTH_SHORT).show()
-                                }
-                                isCalledIntent = true
-                            }
+                            context.startService(
+                                Intent(context, FreeformService::class.java)
+                                    .setAction(FreeformService.ACTION_CALL_INTENT)
+                                    .putExtra(FreeformService.EXTRA_DISPLAY_ID, defaultDisplay.displayId)
+                            )
                             destroy()
                         }
 
@@ -1803,7 +1760,7 @@ class FreeformView(
                         activityTaskManager?.moveRootTaskToDisplay(tId, virtualDisplay.display.displayId)
                     else
                         // try relaunch
-                        callIntent(config.intent as Intent, ActivityOptions.makeBasic().setLaunchDisplayId(virtualDisplay.display.displayId))
+                        context.startService(Intent(context, FreeformService::class.java).setAction(FreeformService.ACTION_CALL_INTENT))
                 }
             }
         }

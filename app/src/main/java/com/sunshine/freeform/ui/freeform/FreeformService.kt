@@ -2,6 +2,7 @@ package com.sunshine.freeform.ui.freeform
 
 import android.app.ActivityOptions
 import android.app.PendingIntent
+import android.app.PendingIntentHidden
 import android.app.Service
 import android.content.ComponentName
 import android.content.Intent
@@ -10,6 +11,8 @@ import android.os.IBinder
 import android.os.Parcelable
 import android.os.SystemClock
 import com.sunshine.freeform.utils.ServiceUtils
+import com.sunshine.freeform.utils.ServiceUtils.activityManager
+import dev.rikka.tools.refine.Refine
 
 class FreeformService: Service() {
     private lateinit var mFreeformView: FreeformView
@@ -65,6 +68,14 @@ class FreeformService: Service() {
                 }
                 startFreeformView()
             }
+            ACTION_CALL_INTENT -> {
+                if (mIntent == null)
+                    return START_NOT_STICKY
+                val displayId = intent.getIntExtra(EXTRA_DISPLAY_ID, mDisplay.display.displayId)
+                if (startIntent(options = ActivityOptions.makeBasic().setLaunchDisplayId(displayId)) < 0) {
+                    return START_NOT_STICKY
+                }
+            }
             ACTION_DESTROY_FREEFORM -> {
                 mFreeformView.destroy()
             }
@@ -105,7 +116,7 @@ class FreeformService: Service() {
         if (parcelable is Intent) {
             mIntent = parcelable
             mComponentName = parcelable.component
-            result = mFreeformView.callIntent(parcelable, options, userId = mUserId)
+            result = callIntent(parcelable, options, userId = mUserId)
         } else if (componentName != null) {
             mComponentName = componentName
             mIntent = Intent(Intent.ACTION_MAIN).apply {
@@ -113,16 +124,44 @@ class FreeformService: Service() {
                 setPackage(componentName.packageName)
                 addCategory(Intent.CATEGORY_LAUNCHER)
             }
-            result = mFreeformView.callIntent(mIntent as Intent, options, userId = mUserId)
+            result = callIntent(mIntent as Intent, options, userId = mUserId)
             if (parcelable is PendingIntent) {
-                result = mFreeformView.callPendingIntent(parcelable, options)
+                result = callPendingIntent(parcelable, options)
             }
         }
         return result
     }
 
+    private fun callIntent(intent: Intent,
+                   options: ActivityOptions,
+                   withoutAnim: Boolean = true,
+                   userId: Int = mUserId,
+    ): Int {
+        if (withoutAnim) intent.flags = intent.flags or Intent.FLAG_ACTIVITY_NO_ANIMATION
+        return activityManager.startActivityAsUserWithFeature(
+            null, SHELL, null, intent,
+            intent.type, null, null, 0, 0,
+            null, options.toBundle(), userId,
+        )
+    }
+
+    private fun callPendingIntent(pendingIntent: PendingIntent,
+                                  options: ActivityOptions,
+    ): Int {
+        val pendingIntentHidden = Refine.unsafeCast<PendingIntentHidden>(pendingIntent)
+        return activityManager.sendIntentSender(
+            pendingIntentHidden.target, pendingIntentHidden.whitelistToken, 0, null,
+            null, null, null, options.toBundle()
+        )
+    }
+
     companion object {
+        val SHELL = "com.android.shell"
+
         val ACTION_START_INTENT = "com.sunshine.freeform.action.start.intent"
+        val ACTION_CALL_INTENT = "com.sunshine.freeform.action.call.intent"
         val ACTION_DESTROY_FREEFORM = "com.sunshine.freeform.action.destroy.freeform"
+
+        val EXTRA_DISPLAY_ID = "com.sunshine.freeform.action.intent.display.id"
     }
 }
