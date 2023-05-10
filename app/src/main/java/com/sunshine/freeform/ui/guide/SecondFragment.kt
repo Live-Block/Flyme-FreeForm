@@ -97,7 +97,6 @@ class SecondFragment : Fragment() {
         try {
             freeformStudyView = FreeformStudyViewNew(
                 FreeformConfig(
-                    useCustomConfig = false,
                     componentName = ComponentName(requireContext(), GuideStudyActivity::class.java),
                     userId = 0
                 ),

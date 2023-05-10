@@ -71,11 +71,6 @@ class FreeformView(
 
     private lateinit var backgroundView: View
 
-    //判断是否是初次启动，防止屏幕旋转时再初始化
-    private var firstInit = true
-
-    private var isCalledIntent = false
-
     //该小窗是否已经销毁
     var isDestroy = false
 
@@ -308,9 +303,6 @@ class FreeformView(
         //优化 QQ和微信也支持缩放了 q220917.1
         freeformScreenHeight = (min(realScreenHeight, realScreenWidth) / config.widthHeightRatio).roundToInt()
         freeformScreenWidth = (freeformScreenHeight * config.widthHeightRatio).roundToInt()
-
-        if (config.useCustomConfig) return
-        //---------------客制化配置-----------------
 
         config.rememberPosition = viewModel.getBooleanSp("remember_freeform_position", false)
         if (config.rememberPosition) {
@@ -718,10 +710,6 @@ class FreeformView(
             } else {
                 floatViewToMiniView()
             }
-        } else {
-            windowManager.removeViewImmediate(binding.root)
-            windowManager.addView(binding.root, windowLayoutParams)
-            FreeformHelper.addFreeformToSet(this)
         }
     }
 
@@ -1606,15 +1594,9 @@ class FreeformView(
             screenListener.unregisterListener()
         } catch (e: Exception) {}
 
-        //移除小窗管理
-        FreeformHelper.removeFreeformFromSet(this)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             activityTaskManager?.unregisterTaskStackListener(taskStackListener)
         }
-    }
-
-    init {
     }
 
     //优化 将触摸设置为一等公民，以支持多点触控，也可以看一下为什么那样，多点触控就不支持了... q220906.1
@@ -1801,9 +1783,6 @@ class FreeformView(
 
     companion object {
         private const val TAG = "FreeformView"
-
-        private const val YOUTUBE = "com.google.android.youtube"
-        private const val YOUTUBE_ACTIVITY = "com.google.android.youtube.HomeActivity"
 
         const val REMEMBER_X = "freeform_remember_x"
         const val REMEMBER_Y = "freeform_remember_y"

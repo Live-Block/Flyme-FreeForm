@@ -20,20 +20,6 @@ import kotlin.math.roundToInt
  * 小窗帮助类
  */
 object FreeformHelper {
-    //小窗默认高度
-    const val PORTRAIT_HEIGHT = 1200
-    const val LANDSCAPE_HEIGHT = 800
-
-    //小窗默认DPI
-    const val PORTRAIT_DPI = 500
-    const val LANDSCAPE_DPI = 500
-
-    //正在展示的小窗
-    private val freeformStackSet = StackSet()
-
-    //记录包名+userId，更加快速
-    private val freeformPackageSet = HashSet<String>()
-
     fun getDefaultHeight(context: Context): Int {
         return getDefaultHeight(context, (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).getDisplay(Display.DEFAULT_DISPLAY))
     }
@@ -77,41 +63,5 @@ object FreeformHelper {
      */
     fun screenIsPortrait(rotation: Int): Boolean {
         return rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180
-    }
-
-    /**
-     * 判断该小窗是否在屏幕最上层，即可以操作的层
-     */
-    fun isShowingFirst(freeformView: FreeformViewAbs): Boolean {
-        return freeformStackSet.peek() == freeformView
-    }
-
-    fun checkAndClean() {
-        if (freeformStackSet.size() > 0) {
-            cleanRunningStackSet()
-        }
-    }
-
-    fun cleanRunningStackSet() {
-        freeformStackSet.clean()
-    }
-
-    fun addFreeformToSet(freeformView: FreeformViewAbs) {
-        freeformStackSet.push(freeformView)
-        freeformPackageSet.add("${freeformView.config.componentName}/${freeformView.config.userId}")
-    }
-
-    fun removeFreeformFromSet(freeformView: FreeformViewAbs) {
-        freeformStackSet.remove(freeformView)
-        freeformPackageSet.remove("${freeformView.config.componentName}/${freeformView.config.userId}")
-    }
-
-    fun getFreeformStackSet(): StackSet {
-        return freeformStackSet
-    }
-
-    //检查要启动的小窗是否正在小窗中运行
-    fun isAppInFreeform(componentName: ComponentName, userId: Int): Boolean {
-        return freeformPackageSet.contains("$componentName/$userId")
     }
 }

@@ -412,7 +412,6 @@ class FreeformStudyViewNew(
 
                 if (firstInit) {
                     if (MiFreeform.me.controlService?.execShell("am start -n ${config.componentName!!.packageName}/${config.componentName!!.className} --user ${config.userId} --display ${virtualDisplay.display.displayId}", false) == true) {
-                        FreeformHelper.addFreeformToSet(this@FreeformStudyViewNew)
                         firstInit = false
                     }
                     //启动失败
@@ -652,13 +651,9 @@ class FreeformStudyViewNew(
     }
 
     override fun toScreenCenter() {
-
     }
 
     override fun moveToFirst() {
-        windowManager.removeViewImmediate(binding.root)
-        windowManager.addView(binding.root, windowLayoutParams)
-        FreeformHelper.addFreeformToSet(this)
     }
 
     /**
@@ -696,12 +691,7 @@ class FreeformStudyViewNew(
     override fun onTouch(v: View, event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                if (FreeformHelper.isShowingFirst(this)) {
-                    handleDownEvent(v, event)
-                } else {
-                    //不是处于最上层要移动到最上层
-                    moveToFirst()
-                }
+                handleDownEvent(v, event)
             }
             MotionEvent.ACTION_MOVE -> {
                 handleMoveEvent(v, event)
@@ -1130,9 +1120,6 @@ class FreeformStudyViewNew(
             screenListener.unregisterListener()
         } catch (e: Exception) {}
 
-        //移除小窗管理
-        FreeformHelper.removeFreeformFromSet(this)
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             activityTaskManager?.unregisterTaskStackListener(taskStackListener)
         }
@@ -1141,17 +1128,13 @@ class FreeformStudyViewNew(
     init {
         if (MiFreeform.me.pingServiceBinder()) {
             //尝试恢复小窗状态
-            if (FreeformHelper.isAppInFreeform(config.componentName!!, config.userId)) {
-                FreeformHelper.getFreeformStackSet().getByComponentName(config.componentName!!, config.userId)?.moveToFirst()
-            } else {
-                initSystemService()
-                initConfig()
+            initSystemService()
+            initConfig()
 
-                initView()
-            }
+            initView()
         }
         else {
-            MiFreeform.me?.initShizuku()
+            MiFreeform.me.initShizuku()
             Toast.makeText(context, context.getString(R.string.service_not_running), Toast.LENGTH_SHORT).show()
         }
     }

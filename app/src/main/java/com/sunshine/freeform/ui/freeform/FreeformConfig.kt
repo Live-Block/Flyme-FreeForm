@@ -4,8 +4,6 @@ import android.content.ComponentName
 import android.os.Parcelable
 
 data class FreeformConfig(
-    //是否使用自定义配置而非在FreeformView中配置
-    var useCustomConfig: Boolean = false,
     // Component Name
     var componentName: ComponentName? = null,
     //启动的userId
