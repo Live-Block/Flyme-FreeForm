@@ -57,11 +57,10 @@ class FreeformService: Service() {
                     initFreeformView()
                 }
                 mUserId = intent.getIntExtra(Intent.EXTRA_USER, 0)
-                val result = startIntent(
-                    parcelable = intent.getParcelableExtra(Intent.EXTRA_INTENT),
-                    componentName = intent.getParcelableExtra(Intent.EXTRA_COMPONENT_NAME),
-                )
-                if (result < 0) {
+                mIntent = intent.getParcelableExtra(Intent.EXTRA_INTENT)
+                mComponentName = intent.getParcelableExtra(Intent.EXTRA_COMPONENT_NAME)
+                mFreeformView.config = mConfig
+                if (startIntent() < 0) {
                     return START_NOT_STICKY
                 }
                 startFreeformView()
@@ -83,15 +82,13 @@ class FreeformService: Service() {
     }
 
     private fun initFreeformView() {
-        mFreeformView = FreeformView(FreeformConfig(), this)
-        mFreeformView.virtualDisplay = mDisplay
+        mFreeformView = FreeformView(mConfig, this, mDisplay)
         mFreeformView.initSystemService()
         mFreeformView.initConfig()
         mFreeformView.initView()
     }
 
     private fun startFreeformView() {
-        mFreeformView.config = mConfig
         if (mFreeformView.isFloating || mFreeformView.isHidden) {
             mFreeformView.moveToFirst()
         } else {
@@ -102,7 +99,7 @@ class FreeformService: Service() {
     private fun startIntent(
         parcelable: Parcelable? = mIntent,
         options: ActivityOptions = ActivityOptions.makeBasic().setLaunchDisplayId(mDisplay.display.displayId),
-        componentName: ComponentName? = null,
+        componentName: ComponentName? = mComponentName,
     ): Int {
         var result = -1
         if (parcelable is Intent) {

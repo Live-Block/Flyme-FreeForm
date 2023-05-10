@@ -48,6 +48,7 @@ import kotlin.math.roundToInt
 class FreeformView(
     override var config: FreeformConfig,
     private val context: Context,
+    private var virtualDisplay: VirtualDisplay,
 ) : FreeformViewAbs(config), View.OnTouchListener {
     //服务
     private val windowManager: WindowManager = ServiceUtils.windowManager
@@ -90,9 +91,6 @@ class FreeformView(
     private val windowLayoutParams = WindowManager.LayoutParams()
 
     private val backgroundViewLayoutParams = WindowManager.LayoutParams()
-
-    //虚拟屏幕
-    lateinit var virtualDisplay: VirtualDisplay
 
     //物理屏幕方向
     private var screenRotation = defaultDisplay.rotation
@@ -1637,8 +1635,10 @@ class FreeformView(
             windowManager.removeViewImmediate(binding.root)
             windowManager.removeViewImmediate(backgroundView)
         }catch (e: Exception) { }
-        virtualDisplay.surface.release()
-        virtualDisplay.surface = null
+        if (virtualDisplay.surface != null) {
+            virtualDisplay.surface.release()
+            virtualDisplay.surface = null
+        }
 
         try {
             iWindowManager?.removeRotationWatcher(iRotationWatcher)
@@ -1791,6 +1791,10 @@ class FreeformView(
         }
 
         override fun onTaskDisplayChanged(tId: Int, newDisplayId: Int) {
+            if (tId == taskId && isFloating && newDisplayId == Display.DEFAULT_DISPLAY) {
+                context.startService(Intent(context, FreeformService::class.java).setAction(FreeformService.ACTION_START_INTENT).putExtra(Intent.EXTRA_INTENT, config.intent))
+                return
+            }
             if (taskId == -1 && newDisplayId == virtualDisplay.display.displayId) taskId = tId
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
