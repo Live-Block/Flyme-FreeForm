@@ -28,6 +28,12 @@ import com.sunshine.freeform.R
 import com.sunshine.freeform.app.MiFreeform
 import com.sunshine.freeform.databinding.ViewFreeformFlymeBinding
 import com.sunshine.freeform.utils.ServiceUtils
+import com.sunshine.freeform.utils.ServiceUtils.windowManager
+import com.sunshine.freeform.utils.ServiceUtils.displayManager
+import com.sunshine.freeform.utils.ServiceUtils.activityTaskManager
+import com.sunshine.freeform.utils.ServiceUtils.activityManager
+import com.sunshine.freeform.utils.ServiceUtils.inputManager
+import com.sunshine.freeform.utils.ServiceUtils.iWindowManager
 import kotlinx.android.synthetic.main.view_bar.view.*
 import kotlinx.android.synthetic.main.view_bar_flyme.view.*
 import kotlinx.android.synthetic.main.view_floating_button.view.*
@@ -47,13 +53,6 @@ class FreeformView(
     private val context: Context,
     private var virtualDisplay: VirtualDisplay,
 ) : FreeformViewAbs(config), View.OnTouchListener {
-    //服务
-    private val windowManager: WindowManager = ServiceUtils.windowManager
-    private val displayManager: DisplayManager = ServiceUtils.displayManager
-    private var activityTaskManager: IActivityTaskManager? = ServiceUtils.activityTaskManager
-    private var activityManager: IActivityManager? = ServiceUtils.activityManager
-    private var inputManager: IInputManager? = ServiceUtils.inputManager
-    private var iWindowManager: IWindowManager? = ServiceUtils.iWindowManager
 
     //ViewModel
     private val viewModel = FreeformViewModel(context)
