@@ -310,6 +310,8 @@ class FreeformView(
             }
         }
         config.floatViewSize = (viewModel.getIntSp("freeform_float_view_size", 20)) / 100.toFloat()
+        config.freeformSize = (viewModel.getIntSp("freeform_size", 75)) / 100.toFloat()
+        config.freeformSizeLand = (viewModel.getIntSp("freeform_size_land", 90)) / 100.toFloat()
         config.dimAmount = (viewModel.getIntSp("freeform_dimming_amount", 20)) / 100.toFloat()
 
         viewModel.registerOnSharedPreferenceChangeListener(sharedPreferencesChangeListener)
@@ -714,7 +716,7 @@ class FreeformView(
     }
 
     private fun refreshFreeformSize() {
-        freeformHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) (rootWidth / config.widthHeightRatio * 0.75).roundToInt() else (rootWidth * 0.9).roundToInt()
+        freeformHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) (rootWidth / config.widthHeightRatio * config.freeformSize).roundToInt() else (rootWidth * config.freeformSizeLand).roundToInt()
         freeformHeight += cardHeightMargin.roundToInt()
         freeformWidth = ((freeformHeight + cardWidthMargin) * config.widthHeightRatio).roundToInt()
         if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {

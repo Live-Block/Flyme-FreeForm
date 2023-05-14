@@ -26,6 +26,9 @@ data class FreeformConfig(
     var rememberPosition: Boolean = false,
     // 挂起大小
     var floatViewSize: Float = 0.2f,
+    //
+    var freeformSize: Float = 0.75f,
+    var freeformSizeLand: Float = 0.9f,
     //记录启动位置
     var rememberX: Int = 0,
     var rememberY: Int = 0,

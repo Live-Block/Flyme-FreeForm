@@ -41,6 +41,24 @@
             app:showSeekBarValue="true"/>
 
         <SeekBarPreference
+            android:key="freeform_size"
+            android:title="Freeform size"
+            app:iconSpaceReserved="false"
+            app:defaultValue="75"
+            app:min="10"
+            android:max="100"
+            app:showSeekBarValue="true"/>
+
+        <SeekBarPreference
+            android:key="freeform_size_land"
+            android:title="Freeform size landscape"
+            app:iconSpaceReserved="false"
+            app:defaultValue="90"
+            app:min="10"
+            android:max="100"
+            app:showSeekBarValue="true"/>
+
+        <SeekBarPreference
             android:key="freeform_float_view_size"
             android:title="Freeform float window Size"
             app:iconSpaceReserved="false"
