@@ -238,12 +238,8 @@ class FreeformView(
                     if (isHidden) {
                         hiddenViewToFloatView(false)
                     }
-                    windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
-                        width = hangUpViewWidth
-                        height = hangUpViewHeight
-                    })
 
-                    binding.cardRoot.radius = context.resources.getDimension(R.dimen.card_corner_radius) * (hangUpViewWidth / realScreenWidth)
+                    binding.cardRoot.radius = context.resources.getDimension(R.dimen.card_corner_radius) * (hangUpViewWidth / rootWidth)
 
                     val windowCoordinate = intArrayOf(
                         windowLayoutParams.x,
@@ -251,13 +247,33 @@ class FreeformView(
                     )
 
                     val location = genFloatViewLocation()
-                    lastFloatViewLocation = location
+                    lastFloatViewLocation[0] = location[0]
 
                     AnimatorSet().apply {
                         playTogether(
-                            moveViewAnim(windowCoordinate, location)
+                            ValueAnimator.ofInt(windowLayoutParams.width, hangUpViewWidth)
+                                .apply {
+                                    addUpdateListener {
+                                        windowManager.updateViewLayout(
+                                            binding.root,
+                                            windowLayoutParams.apply {
+                                                width = it.animatedValue as Int
+                                            })
+                                    }
+                                },
+                            ValueAnimator.ofInt(windowLayoutParams.height, hangUpViewHeight)
+                                .apply {
+                                    addUpdateListener {
+                                        windowManager.updateViewLayout(
+                                            binding.root,
+                                            windowLayoutParams.apply {
+                                                height = it.animatedValue as Int
+                                            })
+                                    }
+                                },
+                            moveViewAnim(windowCoordinate, lastFloatViewLocation)
                         )
-                        duration = 1000
+                        duration = 200
                         start()
                     }
                 }
