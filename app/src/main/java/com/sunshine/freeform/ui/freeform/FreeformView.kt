@@ -342,6 +342,12 @@ class FreeformView(
         backgroundView = View(context)
         backgroundView.setBackgroundColor(Color.TRANSPARENT)
         backgroundView.setOnTouchListener(this@FreeformView)
+        backgroundView.setOnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
+                MiFreeform.me.controlService!!.pressBack(virtualDisplay.display.displayId)
+            }
+            true
+        }
         backgroundView.id = View.generateViewId()
 
         binding.root.setOnTouchListener(this)
@@ -533,7 +539,10 @@ class FreeformView(
             type = WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             width = WindowManager.LayoutParams.MATCH_PARENT
             height = WindowManager.LayoutParams.MATCH_PARENT
-            flags = windowLayoutParams.flags or WindowManager.LayoutParams.FLAG_DIM_BEHIND
+            flags = windowLayoutParams.flags or
+                    WindowManager.LayoutParams.FLAG_DIM_BEHIND or
+                    WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH xor
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
         }
 
         try {
