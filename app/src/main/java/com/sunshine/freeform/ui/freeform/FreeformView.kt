@@ -425,7 +425,6 @@ class FreeformView(
         //修复 在有正在运行程序的情况下锁屏，米窗崩溃的问题 q220902.1
         //优化 锁屏后小窗的状态 q220917.3
         if (!isHidden) {
-            binding.root.alpha = 0f
             windowLayoutParams.flags =
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                         WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
@@ -438,7 +437,6 @@ class FreeformView(
     override fun onUserPresent() {
         //挂起状态无需更新
         if (!isHidden) {
-            binding.root.alpha = 1f
             windowLayoutParams.flags =
                 WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
                         WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
