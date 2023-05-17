@@ -188,6 +188,7 @@ class KeepAliveService : AccessibilityService(), SharedPreferences.OnSharedPrefe
         unregisterReceiver(startFreeformReceiver)
 
         iWindowManager.removeRotationWatcher(rotationWatcher)
+        stopService(Intent(this, FreeformService::class.java))
     }
 
     /**

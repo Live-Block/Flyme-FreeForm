@@ -215,6 +215,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         unregisterReceiver(startFreeformReceiver)
 
         iWindowManager.removeRotationWatcher(rotationWatcher)
+        stopService(Intent(this, FreeformService::class.java))
     }
 
     /**
