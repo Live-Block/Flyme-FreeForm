@@ -1,12 +1,8 @@
-# Mi-FreeForm
+# Mi-FreeForm (Flyme Style Edition)
 
-![GitHub](https://img.shields.io/github/license/sunshine0523/Mi-FreeForm)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/DtHnAme/Mi-FreeForm)
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/sunshine0523/Mi-FreeForm)
-
-[简体中文](README.zh-Hans.md)
-
-<img src="https://raw.githubusercontent.com/sunshine0523/Mi-FreeForm/master/app/src/main/res/mipmap/ic_launcher.png" width="100"/>
+<img src="https://raw.githubusercontent.com/DtHnAme/Mi-FreeForm/master/app/src/main/res/mipmap/ic_launcher.png" width="100"/>
 
 Mi-FreeForm is an APP that is activated through Shizuku/Sui and can display most apps in the form of freeform. Current support:
 - Open the favorites app in small window mode through the global sidebar
@@ -15,13 +11,7 @@ Mi-FreeForm is an APP that is activated through Shizuku/Sui and can display most
 - Make the APP that sends notifications open in freeform mode
 
 ## Download
-[![酷安](images/coolapk.png)](https://www.coolapk.com/apk/com.sunshine.freeform)
-
-[Release](https://github.com/sunshine0523/Mi-FreeForm/releases/)
-
-## Screenshot
-<img src="https://raw.githubusercontent.com/sunshine0523/Mi-FreeForm/master/images/screenshot_1.jpg" width="500"/>
-<img src="https://raw.githubusercontent.com/sunshine0523/Mi-FreeForm/master/images/screenshot_2.jpg" width="500"/>
+[Release](https://github.com/DtHnAme/Mi-FreeForm/releases/)
 
 ## Library
 [AppIconLoader](https://github.com/zhanghai/AppIconLoader)
@@ -39,6 +29,7 @@ Mi-FreeForm is an APP that is activated through Shizuku/Sui and can display most
 ## License
 ```
 Copyright (C) 2021-2022  sunshine0523
+Copyright (C) 2023  DtHnAme
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
