@@ -310,13 +310,11 @@ class FreeformStudyViewNew(
     }
 
     private fun initConfig() {
-        config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
-        //config.widthHeightRatio = ...
 
         realScreenWidth = context.resources.displayMetrics.widthPixels
         realScreenHeight = context.resources.displayMetrics.heightPixels
 
-        freeformScreenHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
+        freeformScreenHeight = (min(realScreenHeight, realScreenWidth) / config.widthHeightRatio).roundToInt()
         freeformScreenWidth = (freeformScreenHeight * config.widthHeightRatio).roundToInt()
 
         freeformHeight = if (FreeformHelper.screenIsPortrait(screenRotation)) (config.maxHeight * 0.75).roundToInt() else (config.maxHeight * 0.8).roundToInt()
@@ -595,7 +593,6 @@ class FreeformStudyViewNew(
             realScreenHeight = min(context.resources.displayMetrics.widthPixels, context.resources.displayMetrics.heightPixels)
         }
 
-        config.maxHeight = FreeformHelper.getDefaultHeight(context, defaultDisplay, config.widthHeightRatio)
         maxFreeformScreenSize = config.maxHeight
         freeformHeight = if (FreeformHelper.screenIsPortrait(defaultDisplay.rotation)) (config.maxHeight * 0.75).roundToInt() else (config.maxHeight * 0.8).roundToInt()
         freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()

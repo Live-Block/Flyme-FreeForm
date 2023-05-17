@@ -1,18 +1,7 @@
 package com.sunshine.freeform.ui.freeform
 
-import android.content.ComponentName
 import android.content.Context
-import android.content.res.Configuration
-import android.hardware.display.DisplayManager
-import android.util.DisplayMetrics
-import android.util.Log
-import android.view.Display
 import android.view.Surface
-import android.view.WindowManager
-import com.sunshine.freeform.app.MiFreeform
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.roundToInt
 
 /**
  * @date 2022/8/22
@@ -20,38 +9,6 @@ import kotlin.math.roundToInt
  * 小窗帮助类
  */
 object FreeformHelper {
-    fun getDefaultHeight(context: Context): Int {
-        return getDefaultHeight(context, (context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager).getDisplay(Display.DEFAULT_DISPLAY))
-    }
-
-    fun getDefaultHeight(context: Context, defaultDisplay: Display): Int {
-        return getDefaultHeight(context, defaultDisplay, 10f / 16f)
-    }
-
-    /**
-     * @param defaultDisplay 默认屏幕，用于获取屏幕方向
-     * @param widthHeightRadio 小窗的宽高比例
-     */
-    fun getDefaultHeight(context: Context, defaultDisplay: Display, widthHeightRadio: Float): Int {
-        val screenWidth = min(context.resources.displayMetrics.heightPixels, context.resources.displayMetrics.widthPixels)
-        val rotation = defaultDisplay.rotation
-        return if (rotation == Surface.ROTATION_0 || rotation == Surface.ROTATION_180) (screenWidth / widthHeightRadio).roundToInt() else screenWidth
-    }
-
-    fun getDefaultDpi(context: Context): Int {
-        val sp = context.getSharedPreferences(MiFreeform.APP_SETTINGS_NAME, Context.MODE_PRIVATE)
-        val orientation = context.resources.configuration.orientation
-        val freeformHeight = getDefaultHeight(context)
-        val screenDpi = context.resources.displayMetrics.densityDpi
-        val screenHeight = context.resources.displayMetrics.heightPixels
-        return if (orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            (screenHeight * sp.getInt("freeform_landscape_dpi", 75) / 100.0f / freeformHeight * screenDpi).roundToInt()
-        } else {
-            //这个0.75就是测试出来的，就是感官上dpi合适的值
-            (screenHeight * sp.getInt("freeform_dpi", 75) / 100.0f / freeformHeight * screenDpi).roundToInt()
-        }
-    }
-
     fun getScreenDpi(context: Context): Int {
         return context.resources.displayMetrics.densityDpi
     }

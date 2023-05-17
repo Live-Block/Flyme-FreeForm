@@ -13,9 +13,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.graphics.SurfaceTexture
-import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
-import android.hardware.input.IInputManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
@@ -25,17 +23,12 @@ import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.animation.addListener
-import androidx.core.animation.doOnEnd
-import androidx.core.animation.doOnRepeat
-import androidx.core.animation.doOnStart
 import com.sunshine.freeform.R
 import com.sunshine.freeform.app.MiFreeform
 import com.sunshine.freeform.databinding.ViewFreeformFlymeBinding
-import com.sunshine.freeform.utils.ServiceUtils
 import com.sunshine.freeform.utils.ServiceUtils.windowManager
 import com.sunshine.freeform.utils.ServiceUtils.displayManager
 import com.sunshine.freeform.utils.ServiceUtils.activityTaskManager
-import com.sunshine.freeform.utils.ServiceUtils.activityManager
 import com.sunshine.freeform.utils.ServiceUtils.inputManager
 import com.sunshine.freeform.utils.ServiceUtils.iWindowManager
 import kotlinx.android.synthetic.main.view_bar.view.*
@@ -286,7 +279,7 @@ class FreeformView(
             setDisplayIdMethod = MotionEvent::class.java.getMethod("setDisplayId", Int::class.javaPrimitiveType)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            activityTaskManager?.registerTaskStackListener(taskStackListener)
+            activityTaskManager.registerTaskStackListener(taskStackListener)
         }
     }
 
@@ -345,7 +338,7 @@ class FreeformView(
         backgroundView = View(context)
         backgroundView.setBackgroundColor(Color.TRANSPARENT)
         backgroundView.setOnTouchListener(this@FreeformView)
-        backgroundView.setOnKeyListener { v, keyCode, event ->
+        backgroundView.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
                 MiFreeform.me.controlService!!.pressBack(virtualDisplay.display.displayId)
             }
@@ -457,7 +450,7 @@ class FreeformView(
     }
 
     private fun initOrientationChangedListener() {
-        iWindowManager?.watchRotation(iRotationWatcher, Display.DEFAULT_DISPLAY)
+        iWindowManager.watchRotation(iRotationWatcher, Display.DEFAULT_DISPLAY)
     }
 
     private fun initTextureViewListener() {
@@ -547,14 +540,14 @@ class FreeformView(
                     WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
         }
 
-        try {
+        runCatching {
             windowManager.addView(backgroundView, backgroundViewLayoutParams)
             windowManager.addView(binding.root, windowLayoutParams)
-        } catch (e: Exception) {
-            try {
+        }.onFailure {
+            runCatching {
                 windowManager.removeViewImmediate(backgroundView)
                 windowManager.removeViewImmediate(binding.root)
-            } catch (e: Exception) {}
+            }
 
             if (Settings.canDrawOverlays(context)) {
                 windowManager.addView(backgroundView, backgroundViewLayoutParams.apply {
@@ -565,7 +558,7 @@ class FreeformView(
                 })
             } else {
                 destroy()
-                try {
+                runCatching {
                     Toast.makeText(context, context.getString(R.string.request_overlay_permission), Toast.LENGTH_LONG).show()
                     val intent = Intent(
                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -575,7 +568,7 @@ class FreeformView(
                     context.startActivity(
                         intent
                     )
-                } catch (e: Exception) {
+                }.onFailure {
                     Toast.makeText(context, context.getString(R.string.request_overlay_permission_fail), Toast.LENGTH_LONG).show()
                 }
             }
@@ -587,7 +580,7 @@ class FreeformView(
      */
     private fun setWindowNoUpdateAnimation() {
         val classname = "android.view.WindowManager\$LayoutParams"
-        try {
+        runCatching {
             val layoutParamsClass: Class<*> = Class.forName(classname)
             val privateFlags: Field = layoutParamsClass.getField("privateFlags")
             val noAnim: Field = layoutParamsClass.getField("PRIVATE_FLAG_NO_MOVE_ANIMATION")
@@ -595,12 +588,12 @@ class FreeformView(
             val noAnimFlag: Int = noAnim.getInt(windowLayoutParams)
             privateFlagsValue = privateFlagsValue or noAnimFlag
             privateFlags.setInt(windowLayoutParams, privateFlagsValue)
-        } catch (e: Exception) { }
+        }
     }
 
     private fun setWindowEnableUpdateAnimation() {
         val classname = "android.view.WindowManager\$LayoutParams"
-        try {
+        runCatching {
             val layoutParamsClass: Class<*> = Class.forName(classname)
             val privateFlags: Field = layoutParamsClass.getField("privateFlags")
             val noAnim: Field = layoutParamsClass.getField("PRIVATE_FLAG_NO_MOVE_ANIMATION")
@@ -608,7 +601,7 @@ class FreeformView(
             val noAnimFlag: Int = noAnim.getInt(windowLayoutParams)
             privateFlagsValue = privateFlagsValue and noAnimFlag.inv()
             privateFlags.setInt(windowLayoutParams, privateFlagsValue)
-        } catch (e: Exception) { }
+        }
     }
 
     private fun onFreeFormRotationChanged() {
@@ -1036,7 +1029,7 @@ class FreeformView(
                                         isFloating = true
                                     },
                                     onEnd = {
-                                        binding.textureView.setOnTouchListener(floatViewTouchListener())
+                                        binding.textureView.setOnTouchListener(FloatViewTouchListener())
 
                                         setWindowEnableUpdateAnimation()
                                     },
@@ -1182,7 +1175,7 @@ class FreeformView(
 
     private lateinit var hiddenView: View
 
-    private inner class floatViewTouchListener : View.OnTouchListener {
+    private inner class FloatViewTouchListener : View.OnTouchListener {
         var moveStartX : Float = -1f
         var moveStartY : Float = -1f
 
@@ -1191,6 +1184,7 @@ class FreeformView(
 
         var isMoved : Boolean = false
 
+        @SuppressLint("ClickableViewAccessibility")
         override fun onTouch(v: View?, event: MotionEvent): Boolean {
             if (v?.id == R.id.root) {
                 hideGestureDetector.onTouchEvent(event)
@@ -1269,7 +1263,7 @@ class FreeformView(
                                         isHidden = true
                                         hiddenView = LayoutInflater.from(context).inflate(R.layout.view_floating_button, null, false)
                                         hiddenView.root.apply {
-                                            setOnTouchListener(this@floatViewTouchListener)
+                                            setOnTouchListener(this@FloatViewTouchListener)
                                         }
                                         if (position == 1)
                                             hiddenView.backgroundView.background = context.getDrawable(R.drawable.floating_button_bg_right)
@@ -1504,23 +1498,24 @@ class FreeformView(
         isHidden = false
         isFloating = false
 
-        try {
+        runCatching {
             windowManager.removeViewImmediate(binding.root)
             windowManager.removeViewImmediate(backgroundView)
-        }catch (e: Exception) { }
+        }
         if (virtualDisplay.surface != null) {
             virtualDisplay.surface.release()
             virtualDisplay.surface = null
         }
 
-        try {
-            iWindowManager?.removeRotationWatcher(iRotationWatcher)
-        } catch (e: Exception) {}
+        runCatching {
+            iWindowManager.removeRotationWatcher(iRotationWatcher)
+        }
 
         screenListener.removeScreenStateListener(this@FreeformView)
+        viewModel.unregisterOnSharedPreferenceChangeListener(sharedPreferencesChangeListener)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            activityTaskManager?.unregisterTaskStackListener(taskStackListener)
+            activityTaskManager.unregisterTaskStackListener(taskStackListener)
         }
     }
 
@@ -1577,7 +1572,7 @@ class FreeformView(
             )
 
             setDisplayIdMethod?.invoke(newEvent, virtualDisplay.display.displayId)
-            inputManager!!.injectInputEvent(newEvent, 0)
+            inputManager.injectInputEvent(newEvent, 0)
             newEvent.recycle()
         }
     }
@@ -1632,7 +1627,7 @@ class FreeformView(
                 event.source,
                 event.flags
             )
-            inputManager?.injectInputEvent(newEvent, virtualDisplay.display.displayId)
+            inputManager.injectInputEvent(newEvent, virtualDisplay.display.displayId)
             newEvent.recycle()
         }
     }
@@ -1664,7 +1659,7 @@ class FreeformView(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 if (!isDestroy && tId == taskId && newDisplayId == Display.DEFAULT_DISPLAY) {
                     if (config.useSuiRefuseToFullScreen)
-                        activityTaskManager?.moveRootTaskToDisplay(tId, virtualDisplay.display.displayId)
+                        activityTaskManager.moveRootTaskToDisplay(tId, virtualDisplay.display.displayId)
                     else
                         // try relaunch
                         context.startService(Intent(context, FreeformService::class.java).setAction(FreeformService.ACTION_CALL_INTENT))
@@ -1673,12 +1668,12 @@ class FreeformView(
         }
 
         override fun onTaskMovedToFront(taskInfo: ActivityManager.RunningTaskInfo) {
-            try {
+            runCatching {
                 val userId = taskInfo::class.java.getField("userId").get(taskInfo)
                 if (taskInfo.baseActivity!!.packageName == config.componentName!!.packageName && userId == config.userId) {
                     taskId = taskInfo.taskId
                 }
-            } catch (e: Exception) { }
+            }
         }
 
         override fun onTaskRequestedOrientationChanged(tId: Int, requestedOrientation: Int) {

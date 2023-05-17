@@ -31,6 +31,4 @@ data class FreeformConfig(
     var rememberY: Int = 0,
     //手动调整小窗方向
     var manualAdjustFreeformRotation: Boolean = false,
-) {
-
-}
+)

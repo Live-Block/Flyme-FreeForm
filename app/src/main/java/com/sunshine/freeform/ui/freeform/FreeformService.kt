@@ -164,13 +164,13 @@ class FreeformService: Service(), ScreenListener.ScreenStateListener {
     }
 
     companion object {
-        val SHELL = "com.android.shell"
+        const val SHELL = "com.android.shell"
 
-        val ACTION_START_INTENT = "com.sunshine.freeform.action.start.intent"
-        val ACTION_CALL_INTENT = "com.sunshine.freeform.action.call.intent"
-        val ACTION_DESTROY_FREEFORM = "com.sunshine.freeform.action.destroy.freeform"
+        const val ACTION_START_INTENT = "com.sunshine.freeform.action.start.intent"
+        const val ACTION_CALL_INTENT = "com.sunshine.freeform.action.call.intent"
+        const val ACTION_DESTROY_FREEFORM = "com.sunshine.freeform.action.destroy.freeform"
 
-        val EXTRA_DISPLAY_ID = "com.sunshine.freeform.action.intent.display.id"
+        const val EXTRA_DISPLAY_ID = "com.sunshine.freeform.action.intent.display.id"
     }
 
     override fun onScreenOn() {

@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import com.sunshine.freeform.app.MiFreeform
 
-class FreeformViewModel(private val context: Context) {
+class FreeformViewModel(context: Context) {
 
     private val sp = context.getSharedPreferences(MiFreeform.APP_SETTINGS_NAME, Context.MODE_PRIVATE)
 
