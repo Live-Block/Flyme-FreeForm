@@ -15,8 +15,9 @@ import com.sunshine.freeform.utils.ServiceUtils
 import com.sunshine.freeform.utils.ServiceUtils.activityManager
 import dev.rikka.tools.refine.Refine
 
-class FreeformService: Service() {
+class FreeformService: Service(), ScreenListener.ScreenStateListener {
     private lateinit var mFreeformView: FreeformView
+    private lateinit var mScreenListener: ScreenListener
     private var mConfig = FreeformConfig()
     private var mIntent: Parcelable? = null
         set(value) {
@@ -48,6 +49,9 @@ class FreeformService: Service() {
 
     override fun onCreate() {
         ServiceUtils.initWithShizuku(this)
+
+        mScreenListener = ScreenListener(this)
+        mScreenListener.addScreenStateListener(this)
 
         initFreeformView()
     }
@@ -91,10 +95,11 @@ class FreeformService: Service() {
     override fun onDestroy() {
         mFreeformView.destroy()
         mDisplay.release()
+        mScreenListener.unregisterListener()
     }
 
     private fun initFreeformView() {
-        mFreeformView = FreeformView(mConfig, this, mDisplay)
+        mFreeformView = FreeformView(mConfig, this, mDisplay, mScreenListener)
         mFreeformView.initSystemService()
         mFreeformView.initConfig()
         mFreeformView.initView()
@@ -166,5 +171,14 @@ class FreeformService: Service() {
         val ACTION_DESTROY_FREEFORM = "com.sunshine.freeform.action.destroy.freeform"
 
         val EXTRA_DISPLAY_ID = "com.sunshine.freeform.action.intent.display.id"
+    }
+
+    override fun onScreenOn() {
+    }
+
+    override fun onScreenOff() {
+    }
+
+    override fun onUserPresent() {
     }
 }

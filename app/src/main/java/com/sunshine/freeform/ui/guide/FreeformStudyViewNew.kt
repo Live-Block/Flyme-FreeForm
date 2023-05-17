@@ -362,7 +362,7 @@ class FreeformStudyViewNew(
 
         var beforeScreenX = windowLayoutParams.x
 
-        screenListener.begin(object : ScreenListener.ScreenStateListener {
+        screenListener.addScreenStateListener(object : ScreenListener.ScreenStateListener {
             override fun onScreenOn() {}
 
             //关闭屏幕隐藏小窗

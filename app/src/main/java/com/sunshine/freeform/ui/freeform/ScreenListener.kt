@@ -10,7 +10,7 @@ import android.content.IntentFilter
  */
 class ScreenListener(private val mContext: Context) {
     private val mScreenReceiver: ScreenBroadcastReceiver
-    private var mScreenStateListener: ScreenStateListener? = null
+    private var mListeners: ArrayList<ScreenStateListener> = ArrayList()
 
     /**
      * screen状态广播接收者
@@ -20,23 +20,27 @@ class ScreenListener(private val mContext: Context) {
         override fun onReceive(context: Context, intent: Intent) {
             action = intent.action
             if (Intent.ACTION_SCREEN_ON == action) { // 开屏
-                mScreenStateListener!!.onScreenOn()
+                mListeners.forEach {
+                    it.onScreenOn()
+                }
             } else if (Intent.ACTION_SCREEN_OFF == action) { // 锁屏
-                mScreenStateListener!!.onScreenOff()
+                mListeners.forEach {
+                    it.onScreenOff()
+                }
             } else if (Intent.ACTION_USER_PRESENT == action) { // 解锁
-                mScreenStateListener!!.onUserPresent()
+                mListeners.forEach {
+                    it.onUserPresent()
+                }
             }
         }
     }
 
-    /**
-     * 开始监听screen状态
-     *
-     * @param listener
-     */
-    fun begin(listener: ScreenStateListener?) {
-        mScreenStateListener = listener
-        registerListener()
+    fun addScreenStateListener(listener: ScreenStateListener) {
+        mListeners.add(listener)
+    }
+
+    fun removeScreenStateListener(listener: ScreenStateListener) {
+        mListeners.remove(listener)
     }
 
     /**
@@ -44,17 +48,6 @@ class ScreenListener(private val mContext: Context) {
      */
     fun unregisterListener() {
         mContext.unregisterReceiver(mScreenReceiver)
-    }
-
-    /**
-     * 启动screen状态广播接收器
-     */
-    private fun registerListener() {
-        val filter = IntentFilter()
-        filter.addAction(Intent.ACTION_SCREEN_ON)
-        filter.addAction(Intent.ACTION_SCREEN_OFF)
-        filter.addAction(Intent.ACTION_USER_PRESENT)
-        mContext.registerReceiver(mScreenReceiver, filter)
     }
 
     interface ScreenStateListener {
@@ -65,6 +58,13 @@ class ScreenListener(private val mContext: Context) {
     }
 
     init {
+        val filter = IntentFilter()
+        filter.addAction(Intent.ACTION_SCREEN_ON)
+        filter.addAction(Intent.ACTION_SCREEN_OFF)
+        filter.addAction(Intent.ACTION_USER_PRESENT)
+
         mScreenReceiver = ScreenBroadcastReceiver()
+
+        mContext.registerReceiver(mScreenReceiver, filter)
     }
 }

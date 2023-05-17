@@ -52,7 +52,8 @@ class FreeformView(
     override var config: FreeformConfig,
     private val context: Context,
     private var virtualDisplay: VirtualDisplay,
-) : FreeformViewAbs(config), View.OnTouchListener {
+    var screenListener: ScreenListener,
+) : FreeformViewAbs(config), View.OnTouchListener, ScreenListener.ScreenStateListener {
 
     //ViewModel
     private val viewModel = FreeformViewModel(context)
@@ -96,8 +97,6 @@ class FreeformView(
             }
         }
     }
-
-    private val screenListener = ScreenListener(context)
 
     //触摸监听
     private val touchListener = TouchListener()
@@ -416,42 +415,41 @@ class FreeformView(
     private fun initDisplay() {
         virtualDisplay.resize(freeformScreenWidth, freeformScreenHeight, config.freeformDpi)
 
-        screenListener.begin(object : ScreenListener.ScreenStateListener {
-            override fun onScreenOn() {}
+        screenListener.addScreenStateListener(this@FreeformView)
+    }
 
-            //关闭屏幕隐藏小窗
-            override fun onScreenOff() {
-                //挂起状态无需更新
-                //修复 在有正在运行程序的情况下锁屏，米窗崩溃的问题 q220902.1
-                //优化 锁屏后小窗的状态 q220917.3
-                if (!isHidden) {
-                    binding.root.alpha = 0f
-                    windowLayoutParams.flags =
-                            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                            WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
-                            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
-                            WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
-                    windowManager.updateViewLayout(binding.root, windowLayoutParams)
-                }
-            }
+    override fun onScreenOn() {
+    }
 
-            //解锁恢复小窗
-            override fun onUserPresent() {
-                //挂起状态无需更新
-                if (!isHidden) {
-                    binding.root.alpha = 1f
-                    windowLayoutParams.flags =
-                            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
-                            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-                            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
-                            WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+    override fun onScreenOff() {
+        //挂起状态无需更新
+        //修复 在有正在运行程序的情况下锁屏，米窗崩溃的问题 q220902.1
+        //优化 锁屏后小窗的状态 q220917.3
+        if (!isHidden) {
+            binding.root.alpha = 0f
+            windowLayoutParams.flags =
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE
+            WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+            windowManager.updateViewLayout(binding.root, windowLayoutParams)
+        }
+    }
 
-                    windowManager.updateViewLayout(binding.root, windowLayoutParams)
-                }
-            }
-        })
+    override fun onUserPresent() {
+        //挂起状态无需更新
+        if (!isHidden) {
+            binding.root.alpha = 1f
+            windowLayoutParams.flags =
+                WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS or
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+                        WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                        WindowManager.LayoutParams.FLAG_HARDWARE_ACCELERATED or
+                        WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+
+            windowManager.updateViewLayout(binding.root, windowLayoutParams)
+        }
     }
 
     private fun initOrientationChangedListener() {
@@ -1533,10 +1531,7 @@ class FreeformView(
             iWindowManager?.removeRotationWatcher(iRotationWatcher)
         } catch (e: Exception) {}
 
-
-        try {
-            screenListener.unregisterListener()
-        } catch (e: Exception) {}
+        screenListener.removeScreenStateListener(this@FreeformView)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             activityTaskManager?.unregisterTaskStackListener(taskStackListener)
