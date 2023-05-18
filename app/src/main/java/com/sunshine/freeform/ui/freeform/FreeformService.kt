@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.app.PendingIntentHidden
 import android.app.Service
 import android.content.ComponentName
+import android.content.ContextHidden
 import android.content.Intent
 import android.hardware.display.DisplayManager
 import android.os.IBinder
@@ -32,8 +33,8 @@ class FreeformService: Service(), ScreenListener.ScreenStateListener {
 
     private var mUserId: Int = 0
         set(value) {
-            mConfig.userId = value
-            field = value
+            field = if (value < 0) Refine.unsafeCast<ContextHidden>(this).userId else value
+            mConfig.userId = field
         }
 
     private val mDisplay by lazy {
