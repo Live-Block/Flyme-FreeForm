@@ -16,6 +16,7 @@ import android.graphics.SurfaceTexture
 import android.hardware.display.VirtualDisplay
 import android.net.Uri
 import android.os.Build
+import android.os.SystemClock
 import android.provider.Settings
 import android.view.*
 import android.view.animation.*
@@ -292,7 +293,7 @@ class FreeformView(
 
     fun initSystemService() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            setDisplayIdMethod = MotionEvent::class.java.getMethod("setDisplayId", Int::class.javaPrimitiveType)
+            setDisplayIdMethod = InputEvent::class.java.getMethod("setDisplayId", Int::class.javaPrimitiveType)
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             activityTaskManager.registerTaskStackListener(taskStackListener)
@@ -358,7 +359,7 @@ class FreeformView(
         backgroundView.setOnTouchListener(this@FreeformView)
         backgroundView.setOnKeyListener { _, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_BACK && event.action == KeyEvent.ACTION_DOWN) {
-                MiFreeform.me.controlService!!.pressBack(virtualDisplay.display.displayId)
+                performBackKey()
             }
             true
         }
@@ -393,6 +394,36 @@ class FreeformView(
 
         binding.freeformRoot.alpha = 1f
         binding.textureView.alpha = 0f
+    }
+
+    private fun performBackKey() {
+        val downEvent = KeyEvent(
+            SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_DOWN,
+            KeyEvent.KEYCODE_BACK,
+            0
+        )
+        val upEvent = KeyEvent(
+            SystemClock.uptimeMillis(),
+            SystemClock.uptimeMillis(),
+            KeyEvent.ACTION_UP,
+            KeyEvent.KEYCODE_BACK,
+            0
+        )
+
+        runCatching {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                setDisplayIdMethod?.invoke(downEvent, virtualDisplay.display.displayId)
+                inputManager.injectInputEvent(downEvent, 0)
+
+                setDisplayIdMethod?.invoke(upEvent, virtualDisplay.display.displayId)
+                inputManager.injectInputEvent(upEvent, 0)
+            } else {
+                inputManager.injectInputEvent(downEvent, virtualDisplay.display.displayId)
+                inputManager.injectInputEvent(upEvent, virtualDisplay.display.displayId)
+            }
+        }
     }
 
     private fun initFloatBar() {
