@@ -1228,7 +1228,7 @@ class FreeformView(
 
         var movedX : Float = -1f
         var movedY : Float = -1f
-        var minlong = -0.5
+        var minlong = 0.5
 
         var isMoved : Boolean = false
 
