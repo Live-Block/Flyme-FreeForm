@@ -1228,6 +1228,7 @@ class FreeformView(
 
         var movedX : Float = -1f
         var movedY : Float = -1f
+        var minlomng = 0.5
 
         var isMoved : Boolean = false
 
@@ -1244,6 +1245,7 @@ class FreeformView(
                     hangUpGestureDetector.onTouchEvent(event)
                 }
                 MotionEvent.ACTION_MOVE -> {
+                if (movedX > minlong || moveY > minlong) {
                     movedX = event.rawX - moveStartX
                     movedY = event.rawY - moveStartY
                     isMoved = true
@@ -1256,6 +1258,7 @@ class FreeformView(
                     moveStartX = event.rawX
                     moveStartY = event.rawY
                 }
+            }
                 MotionEvent.ACTION_UP -> {
                     if (isMoved) {
                         val nowX = event.rawX
