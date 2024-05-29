@@ -1228,7 +1228,7 @@ class FreeformView(
 
         var movedX : Float = -1f
         var movedY : Float = -1f
-        var minlong = 0.5
+        var minlong = 0.4
 
         var isMoved : Boolean = false
 
@@ -1247,7 +1247,7 @@ class FreeformView(
                 MotionEvent.ACTION_MOVE -> {
                     movedX = event.rawX - moveStartX
                     movedY = event.rawY - moveStartY
-                    if (movedX > minlong || movedY > minlong) {
+                    if ( (movedX) > minlong || (movedY) > minlong) {
                     isMoved = true
 
                     windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
