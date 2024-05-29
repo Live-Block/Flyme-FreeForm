@@ -1245,9 +1245,9 @@ class FreeformView(
                     hangUpGestureDetector.onTouchEvent(event)
                 }
                 MotionEvent.ACTION_MOVE -> {
-                if (movedX > minlong || movedY > minlong) {
                     movedX = event.rawX - moveStartX
                     movedY = event.rawY - moveStartY
+                    if (movedX > minlong || movedY > minlong) {
                     isMoved = true
 
                     windowManager.updateViewLayout(binding.root, windowLayoutParams.apply {
