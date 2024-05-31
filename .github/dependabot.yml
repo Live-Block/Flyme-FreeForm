@@ -4,14 +4,14 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-      time: "00:57"
+      time: "23:58"
     labels: [ "github_actions" ]
 
   - package-ecosystem: gradle
     directory: "/"
     schedule:
       interval: daily
-      time: "00:57"
+      time: "23:58"
     labels: [ "dependencies" ]
     registries: "*"
     groups:
