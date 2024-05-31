@@ -36,11 +36,12 @@ android:layout_height="@dimen/item_app_card_height">
     app:layout_constraintStart_toEndOf="@+id/imageView_app_icon"
     app:layout_constraintTop_toTopOf="parent" />
 
-<com.google.android.material.switchmaterial.SwitchMaterial
+<com.google.android.material.materialswitch.MaterialSwitch
     android:id="@+id/switch_app"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:checked="false"
+    android:layout_marginRight="14dp"
     app:layout_constraintBottom_toBottomOf="parent"
     app:layout_constraintEnd_toEndOf="parent"
     app:layout_constraintTop_toTopOf="parent" />

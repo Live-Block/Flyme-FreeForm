@@ -3,6 +3,7 @@ pluginManagement {
         gradlePluginPortal()
         google()
         mavenCentral()
+        jcenter()
         maven { url 'https://jitpack.io' }
     }
 }
@@ -11,10 +12,11 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        jcenter()
         maven { url 'https://jitpack.io' }
     }
 }
 
-rootProject.name = "Mi-Freeform"
+rootProject.name = "Flyme-Freeform"
 include ':app'
 include ':hidden-api'

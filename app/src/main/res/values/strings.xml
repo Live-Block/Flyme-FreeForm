@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Mi-Freeform</string>
+    <string name="app_name">Flyme-Freeform</string>
     <string name="warn">Warn</string>
     <string name="done">Done</string>
     <string name="cancel">Cancel</string>
@@ -11,7 +11,7 @@
     <string name="reject">Reject</string>
     <string name="agree">Agree</string>
     <string name="lorem_ipsum">" "</string>
-    <string name="service_not_running">Shizuku/Sui service is not running, have you authorized Shizuku/Sui for Mi-Freefrom?</string>
+    <string name="service_not_running">Shizuku/Sui service is not running, have you authorized Shizuku/Sui for Flyme-Freefrom?</string>
     <string name="overlay_no_permission">No floating window permission</string>
     <string name="app_is_running">The app is already in freeform mode</string>
     <string name="settings">Settings</string>
