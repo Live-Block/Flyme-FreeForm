@@ -1228,7 +1228,7 @@ class FreeformView(
 
         var movedX : Float = -1f
         var movedY : Float = -1f
-        val minlong = 0.8
+        val minlong = 1.1
 
         var isMoved : Boolean = false
 
