@@ -82,7 +82,7 @@ dependencies {
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
 
-    def preference_version = "1.2.0"
+    def preference_version = "1.2.1"
     implementation "androidx.preference:preference-ktx:$preference_version"
     implementation 'dev.rikka.rikkax.preference:simplemenu-preference:1.0.3'
 
@@ -96,7 +96,7 @@ dependencies {
 
     implementation 'com.github.megatronking.stringfog:xor:3.0.0'
 
-    implementation "dev.rikka.tools.refine:runtime:4.1.0"
+    implementation "dev.rikka.tools.refine:runtime:4.4.0"
 
     compileOnly project(':hidden-api')
 }
