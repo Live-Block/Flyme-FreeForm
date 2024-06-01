@@ -17,4 +17,6 @@
 
     <color name="warn_color">#ffFFC107</color>
     <color name="success_color">#FF4CAF50</color>
+    
+    <color name="ic_background_color">#FFA9CAEB</color>
 </resources>
