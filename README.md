@@ -28,6 +28,7 @@ Mi-FreeForm is an APP that is activated through Shizuku/Sui and can display most
 ```
 Copyright (C) 2021-2022  sunshine0523
 Copyright (C) 2023  DtHnAme
+Copyright (C) 2024  Live-block
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
