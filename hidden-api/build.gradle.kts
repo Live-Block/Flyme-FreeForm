@@ -5,7 +5,6 @@ plugins {
 android {
     namespace = "com.freeform.hiddenapi"
     compileSdk = 34
-    buildToolsVersion = "34.0.3"
 
     defaultConfig {
         minSdk = 28

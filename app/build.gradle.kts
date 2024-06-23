@@ -14,7 +14,6 @@ plugins {
 android {
     namespace = "com.sunshine.freeform"
     compileSdk = 34
-    buildToolsVersion = "34.0.3"
     
     defaultConfig {
         applicationId = "io.liveblock.freeform"
@@ -27,7 +26,6 @@ android {
 
     buildTypes {
         release {
-            isZipAlignEnabled = true
             isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles(
