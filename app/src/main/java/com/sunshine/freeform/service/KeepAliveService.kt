@@ -111,7 +111,7 @@ class KeepAliveService : AccessibilityService(), SharedPreferences.OnSharedPrefe
         }
         stopService(Intent(this, ForegroundService::class.java))
 
-        registerReceiver(startFreeformReceiver, IntentFilter("com.sunshine.freeform.start_freeform"))
+        registerReceiver(startFreeformReceiver, IntentFilter("com.sunshine.freeform.start_freeform"), RECEIVER_EXPORTED)
 
         iWindowManager = IWindowManager.Stub.asInterface(
             ShizukuBinderWrapper(
