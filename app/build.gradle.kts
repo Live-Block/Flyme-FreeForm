@@ -16,7 +16,7 @@ android {
     compileSdk = 34
     
     defaultConfig {
-        applicationId = "io.liveblock.freeform"
+        applicationId = "com.sunshine.freeform"
         minSdk = 28
         targetSdk = 34
         versionCode = 3110
