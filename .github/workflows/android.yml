@@ -5,6 +5,7 @@ on:
     branches: [ "flyme" ]
   pull_request:
     branches: [ "flyme" ]
+  workflow_dispatch: # Why not do it manually
 
 jobs:
   build:
@@ -24,7 +25,7 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: ./gradlew assembleRelease
-        
+
       - uses: actions/upload-artifact@v4
         with:
           name: Android-output

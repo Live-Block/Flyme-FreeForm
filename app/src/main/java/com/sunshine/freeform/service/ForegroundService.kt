@@ -114,7 +114,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         sp = getSharedPreferences(MiFreeform.APP_SETTINGS_NAME, Context.MODE_PRIVATE)
         sp.registerOnSharedPreferenceChangeListener(this)
         if (sp.getInt("service_type", KeepAliveService.SERVICE_TYPE) == SERVICE_TYPE) {
-            registerReceiver(startFreeformReceiver, IntentFilter("com.sunshine.freeform.start_freeform"))
+            registerReceiver(startFreeformReceiver, IntentFilter("com.sunshine.freeform.start_freeform"), RECEIVER_EXPORTED)
 
             //q221208.1 修复屏幕旋转后侧边栏不贴边的问题
             iWindowManager = IWindowManager.Stub.asInterface(
