@@ -202,7 +202,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val notification = builder.build()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
 
-        startForeground(3, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        startForeground(3, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
 
         return START_STICKY
     }
