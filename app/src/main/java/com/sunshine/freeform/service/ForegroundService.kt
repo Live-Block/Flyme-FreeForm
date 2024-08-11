@@ -13,12 +13,14 @@ import android.graphics.PixelFormat
 import android.hardware.SensorManager
 import android.hardware.display.DisplayManager
 import android.net.Uri
+import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import com.sunshine.freeform.R
 import com.sunshine.freeform.app.MiFreeform
 import com.sunshine.freeform.broadcast.StartFreeformReceiver
@@ -178,6 +180,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notificationIntent = Intent(this, FloatingActivity::class.java)
@@ -202,7 +205,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val notification = builder.build()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
 
-        startForeground(3, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+        startForeground(3, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST)
 
         return START_STICKY
     }
