@@ -1,6 +1,7 @@
 package com.sunshine.freeform.service
 
 import android.annotation.SuppressLint
+import android.content.pm.ServiceInfo
 import android.app.*
 import android.content.Context
 import android.content.Intent
@@ -201,7 +202,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         val notification = builder.build()
         notification.flags = Notification.FLAG_ONGOING_EVENT or Notification.FLAG_NO_CLEAR
 
-        startForeground(3, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        startForeground(3, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
 
         return START_STICKY
     }
