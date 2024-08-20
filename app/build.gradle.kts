@@ -11,15 +11,8 @@ plugins {
     id("dev.rikka.tools.refine")
 }
 
+
 android {
-    signingConfigs {
-        create("liveSign") {
-            storeFile = file("D:\\KeySign\\LiveSign.keystore")
-            storePassword = "LiveSign"
-            keyAlias = "MoCuiLive"
-            keyPassword = "MoCuiSign"
-        }
-    }
     namespace = "com.sunshine.freeform"
     compileSdk = 34
     
@@ -33,6 +26,17 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        create("LiveSign") {
+            if (project.hasProperty("MoCuiLive")) {
+                storeFile = file("D:\\KeySign\\LiveSign.keystore")
+                storePassword = "LiveSign"
+                keyAlias = "MoCuiLive"
+                keyPassword = "MoCuiSign"
+            }
+        }
+    }
+
     buildTypes {
         release {
             isShrinkResources = true
@@ -41,7 +45,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"), 
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("liveSign")
+            signingConfig = signingConfigs.getByName("LiveSign")
         }
     }
 
