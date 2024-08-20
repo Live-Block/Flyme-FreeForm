@@ -12,15 +12,24 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        create("liveSign") {
+            storeFile = file("D:\\KeySign\\LiveSign.keystore")
+            storePassword = "LiveSign"
+            keyAlias = "MoCuiLive"
+            keyPassword = "MoCuiSign"
+        }
+    }
     namespace = "com.sunshine.freeform"
     compileSdk = 34
     
     defaultConfig {
         applicationId = "com.sunshine.freeform"
         minSdk = 28
+        //noinspection OldTargetApi
         targetSdk = 34
-        versionCode = 3110
-        versionName = "3.1.1"
+        versionCode = 3120
+        versionName = "3.1.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -32,6 +41,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"), 
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("liveSign")
         }
     }
 
@@ -68,7 +78,7 @@ dependencies {
     
     // 非主要
     implementation("junit:junit:4.13.2")
-    implementation("androidx.test.ext:junit:1.1.3")
+    implementation("androidx.test.ext:junit:1.2.1")
     implementation("androidx.test.espresso:espresso-core:3.4.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1")
     
@@ -89,17 +99,17 @@ dependencies {
     implementation("androidx.preference:preference-ktx:$preference_version")
     implementation("dev.rikka.rikkax.preference:simplemenu-preference:1.0.3")
 
-    implementation("com.github.promeg:tinypinyin:3.0.0")
+    implementation("io.github.biezhi:TinyPinyin:2.0.3.RELEASE")
 
     implementation("com.airbnb.android:lottie:5.2.0")
 
-    implementation("com.github.bumptech.glide:glide:4.13.2")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
 
     implementation("org.lsposed.hiddenapibypass:hiddenapibypass:4.3")
 
     implementation("com.github.megatronking.stringfog:xor:5.0.0")
 
-    implementation("dev.rikka.tools.refine:runtime:4.1.0")
+    implementation("dev.rikka.tools.refine:runtime:4.3.0")
         
     compileOnly(project(":hidden-api"))
 }
