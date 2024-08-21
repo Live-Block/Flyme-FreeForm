@@ -4,7 +4,6 @@
     <string name="done">确定</string>
     <string name="join_group">加入TG群吹水</string>
     <string name="cancel">取消</string>
-    <string name="join_group">加入TG群吹水</string>
 
     <string name="lorem_ipsum" >"a"</string>
     <string name="xposed_description">一个可以让应用程序以小窗模式运行的Xposed模块</string>
