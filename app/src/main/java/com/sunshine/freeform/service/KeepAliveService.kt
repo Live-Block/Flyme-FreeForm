@@ -2,26 +2,19 @@ package com.sunshine.freeform.service
 
 import android.accessibilityservice.AccessibilityService
 import android.annotation.SuppressLint
-import android.app.Service
 import android.content.*
 import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.hardware.display.DisplayManager
 import android.net.Uri
-import android.os.Build
-import android.os.IBinder
 import android.provider.Settings
-import android.util.Log
 import android.view.*
 import android.view.accessibility.AccessibilityEvent
 import android.widget.Toast
-import androidx.annotation.RequiresApi
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sunshine.freeform.R
 import com.sunshine.freeform.app.MiFreeform
 import com.sunshine.freeform.broadcast.StartFreeformReceiver
 import com.sunshine.freeform.ui.floating.ChooseAppFloatingView
-import com.sunshine.freeform.ui.freeform.FreeformConfig
 import com.sunshine.freeform.ui.freeform.FreeformService
 import kotlinx.coroutines.*
 import rikka.shizuku.ShizukuBinderWrapper
@@ -201,7 +194,7 @@ class KeepAliveService : AccessibilityService(), SharedPreferences.OnSharedPrefe
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when(key) {
             "show_floating" -> {
                 if (getBooleanSp(key, false) && !isShowingFloating && !isShowingChooseApp) {
@@ -377,12 +370,14 @@ class KeepAliveService : AccessibilityService(), SharedPreferences.OnSharedPrefe
     }
 
     override fun onScroll(
-        e1: MotionEvent,
+        e1: MotionEvent?,
         e2: MotionEvent,
         distanceX: Float,
         distanceY: Float
     ): Boolean {
-        touchMode = SCROLL
+        if ( e1 != null ) {
+            touchMode = SCROLL
+        }
         return false
     }
 
@@ -391,7 +386,7 @@ class KeepAliveService : AccessibilityService(), SharedPreferences.OnSharedPrefe
     }
 
     override fun onFling(
-        e1: MotionEvent,
+        e1: MotionEvent?,
         e2: MotionEvent,
         velocityX: Float,
         velocityY: Float

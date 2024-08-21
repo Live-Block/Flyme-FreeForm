@@ -1,14 +1,9 @@
 package com.sunshine.freeform.ui.splash
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.sunshine.freeform.R
@@ -22,9 +17,6 @@ import com.sunshine.freeform.ui.permission.PermissionActivity
 import com.sunshine.freeform.utils.PermissionUtils
 import com.sunshine.freeform.utils.ServiceUtils
 import kotlinx.coroutines.*
-import rikka.shizuku.ShizukuBinderWrapper
-import rikka.shizuku.ShizukuSystemProperties
-import rikka.shizuku.SystemServiceHelper
 
 @SuppressLint("CustomSplashScreen")
 class SplashActivity : AppCompatActivity() {

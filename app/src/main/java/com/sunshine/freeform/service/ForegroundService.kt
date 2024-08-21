@@ -232,7 +232,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when(key) {
             "show_floating" -> {
                 if (getBooleanSp(key, false) && !isShowingFloating && !isShowingChooseApp) {
@@ -403,12 +403,14 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     override fun onScroll(
-        e1: MotionEvent,
+        e1: MotionEvent?,
         e2: MotionEvent,
         distanceX: Float,
         distanceY: Float
     ): Boolean {
-        touchMode = SCROLL
+        if ( e1 != null ) {
+            touchMode = SCROLL
+        }
         return false
     }
 
@@ -417,7 +419,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     override fun onFling(
-        e1: MotionEvent,
+        e1: MotionEvent?,
         e2: MotionEvent,
         velocityX: Float,
         velocityY: Float

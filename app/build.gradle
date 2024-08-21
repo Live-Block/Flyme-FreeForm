@@ -8,27 +8,26 @@ plugins {
 }
 
 android {
-    compileSdk 33
+    signingConfigs {
+        livesign {
+            storeFile file('D:\\KeySign\\LiveSign.keystore')
+            storePassword 'LiveSign'
+            keyAlias 'MoCuiLive'
+            keyPassword 'MoCuiSign'
+        }
+    }
+    compileSdk 34
 
     defaultConfig {
         applicationId "com.sunshine.freeform"
         minSdk 27
-        targetSdk 33
-        versionCode 3100
-        versionName "3.1.0-fix"
+        targetSdk 34
+        versionCode 3120
+        versionName "3.1.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
     }
-
-//    signingConfigs {
-//        release {
-//            storeFile file('D:\\code\\Android\\AndroidStudioProjects\\sunshinekey.jks')
-//            storePassword 'androidhas1'
-//            keyAlias = 'demo'
-//            keyPassword 'androidhas1'
-//        }
-//    }
 
     buildTypes {
         release {
@@ -36,7 +35,7 @@ android {
             shrinkResources true
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//            signingConfig signingConfigs.release
+            signingConfig signingConfigs.livesign
         }
     }
     compileOptions {
@@ -86,7 +85,7 @@ dependencies {
     implementation "androidx.preference:preference-ktx:$preference_version"
     implementation 'dev.rikka.rikkax.preference:simplemenu-preference:1.0.3'
 
-    implementation 'com.github.promeg:tinypinyin:3.0.0'
+    implementation 'io.github.biezhi:TinyPinyin:2.0.3.RELEASE'
 
     implementation 'com.airbnb.android:lottie:5.2.0'
 

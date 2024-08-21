@@ -70,7 +70,7 @@ class CircleImageView @JvmOverloads constructor(
 
     }
 
-    override fun draw(canvas: Canvas?){
+    override fun draw(canvas: Canvas){
         var clip = false
         if (mRadius > 0) {
             clip = true
@@ -78,7 +78,7 @@ class CircleImageView @JvmOverloads constructor(
             path?.let { canvas?.clipPath(it) }
 
         }
-        super.draw(canvas)
+        super.draw(canvas!!)
         if (clip) {
             canvas?.restore()
         }

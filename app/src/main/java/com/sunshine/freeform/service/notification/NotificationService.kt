@@ -78,7 +78,7 @@ class NotificationService : NotificationListenerService(),
         }
     }
 
-    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences, key: String) {
+    override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         when(key) {
             "notify_freeform" -> {
                 enable = sp.getBoolean("notify_freeform", false)

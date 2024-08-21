@@ -17,7 +17,7 @@
             android:layout_width="0dp"
             android:layout_height="@dimen/info_card_height"
             android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginEnd="12dp"
             app:layout_constraintEnd_toStartOf="@+id/guideline4"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -32,7 +32,7 @@
                     android:id="@+id/imageView_xposed_service"
                     android:layout_width="@dimen/info_image_size"
                     android:layout_height="@dimen/info_image_size"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="12dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -64,7 +64,7 @@
             style="@style/FreeForm.CardViewStyle"
             android:layout_width="0dp"
             android:layout_height="@dimen/info_card_height"
-            android:layout_marginStart="8dp"
+            android:layout_marginStart="12dp"
             android:layout_marginEnd="8dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/materialCardView_xposed_info"
@@ -80,7 +80,7 @@
                     android:id="@+id/imageView_shizuku_service"
                     android:layout_width="@dimen/info_image_size"
                     android:layout_height="@dimen/info_image_size"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="12dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -164,13 +164,15 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:layout_marginVertical="@dimen/card_view_margin"
+            app:cardMaxElevation="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/materialCardView_accessibility_info">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp">
 
                 <TextView
                     android:id="@+id/textView_guide"
@@ -195,8 +197,8 @@
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/button_guide"
                         style="@style/FreeForm.ButtonStyle"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/button_height"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
                         android:padding="@dimen/card_view_child_padding"
                         android:text="@string/guide"
                         android:textColor="@color/color_text"
@@ -209,6 +211,7 @@
                         android:id="@+id/button_question"
                         style="@style/FreeForm.ButtonStyle"
                         android:layout_width="match_parent"
+                        android:layout_marginTop="4dp"
                         android:layout_height="@dimen/button_height"
                         android:padding="@dimen/card_view_child_padding"
                         android:text="@string/question"
@@ -232,6 +235,21 @@
                         app:iconPadding="@dimen/icon_padding"
                         app:iconSize="@dimen/icon_size"
                         app:iconTint="@color/color_text" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/button_join_group"
+                        style="@style/FreeForm.ButtonStyle"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/button_height"
+                        android:padding="@dimen/card_view_child_padding"
+                        android:text="@string/join_group"
+                        android:layout_marginBottom="6dp"
+                        android:textColor="@color/color_text"
+                        android:visibility="visible"
+                        app:icon="@drawable/ic_telegram"
+                        app:iconPadding="@dimen/icon_padding"
+                        app:iconSize="@dimen/icon_size"
+                        app:iconTint="@color/cardview_dark_background" />
                 </LinearLayout>
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>

@@ -12,7 +12,6 @@ import android.content.Intent
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.graphics.Color
 import android.graphics.PixelFormat
-import android.graphics.Rect
 import android.graphics.SurfaceTexture
 import android.hardware.display.VirtualDisplay
 import android.net.Uri
@@ -20,10 +19,8 @@ import android.os.Build
 import android.os.SystemClock
 import android.provider.Settings
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.*
 import android.view.animation.*
-import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -36,16 +33,11 @@ import com.sunshine.freeform.utils.ServiceUtils.displayManager
 import com.sunshine.freeform.utils.ServiceUtils.activityTaskManager
 import com.sunshine.freeform.utils.ServiceUtils.inputManager
 import com.sunshine.freeform.utils.ServiceUtils.iWindowManager
-import kotlinx.android.synthetic.main.view_bar.view.*
-import kotlinx.android.synthetic.main.view_bar_flyme.view.*
 import kotlinx.android.synthetic.main.view_floating_button.view.*
-import kotlinx.android.synthetic.main.view_freeform.view.*
 import kotlinx.android.synthetic.main.view_freeform.view.root
-import kotlinx.android.synthetic.main.view_freeform_flyme.view.*
 import kotlinx.coroutines.*
 import java.lang.reflect.Field
 import java.lang.reflect.Method
-import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt

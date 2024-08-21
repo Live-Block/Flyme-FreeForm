@@ -42,7 +42,7 @@
 
         <SeekBarPreference
             android:key="freeform_size"
-            android:title="Freeform size"
+            android:title="@string/setting_freeform_size"
             app:iconSpaceReserved="false"
             app:defaultValue="75"
             app:min="10"
@@ -51,7 +51,7 @@
 
         <SeekBarPreference
             android:key="freeform_size_land"
-            android:title="Freeform size landscape"
+            android:title="@string/setting_freeform_size_landspace"
             app:iconSpaceReserved="false"
             app:defaultValue="90"
             app:min="10"
@@ -60,7 +60,7 @@
 
         <SeekBarPreference
             android:key="freeform_float_view_size"
-            android:title="Freeform float window Size"
+            android:title="@string/setting_freeform_float_size"
             app:iconSpaceReserved="false"
             app:defaultValue="20"
             app:min="10"
@@ -69,7 +69,7 @@
 
         <SeekBarPreference
             android:key="freeform_dimming_amount"
-            android:title="Freeform dimming amount"
+            android:title="@string/setting_freeform_dimming"
             app:iconSpaceReserved="false"
             app:defaultValue="20"
             app:min="0"

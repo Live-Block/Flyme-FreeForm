@@ -4,6 +4,7 @@
     <string name="warn">Warn</string>
     <string name="done">Done</string>
     <string name="cancel">Cancel</string>
+    <string name="join_group">Join Telegram Group</string>
     <string name="xposed_description">An Xposed module that lets apps run in freeform mode</string>
     <string name="mi_freeform_not_support">Mi-Freeform only supports Android 10 and above</string>
     <string name="privacy_title">Privacy Policy</string>
@@ -157,4 +158,9 @@
     <string name="recent_label">Running Freeform</string>
     <string name="floating_alpha_title">Sidebar Transparency</string>
     <string name="recent_open_by_freeform">Open by Mi-Freeform</string>
+
+    <string name="setting_freeform_size">Freeform Size</string>
+    <string name="setting_freeform_size_landspace">Freeform Size on landspace</string>
+    <string name="setting_freeform_float_size">Freeform window Size when floating</string>
+    <string name="setting_freeform_dimming">Freeform dimming amount</string>
 </resources>
