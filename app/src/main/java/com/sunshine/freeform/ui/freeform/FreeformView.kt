@@ -76,6 +76,13 @@ class FreeformView(
     private var originalWindowY = 0
     private var screenHeight = 0
 
+    //bottombar
+    val displayMetrics = context.resources.displayMetrics
+    val screenhigh = displayMetrics.heightPixels
+
+    // 根据屏幕高度动态计算 marginBottom
+    val desiredMarginBottom = (screenhigh * 0.1395).roundToInt()
+
     //叠加层Params
     private val windowLayoutParams = WindowManager.LayoutParams()
 
@@ -351,6 +358,58 @@ class FreeformView(
         }
     }
 
+    // Method to elevate the window when the keyboard is shown
+    private fun elevateWindow(keyboardHeight: Int) {
+        // 根据屏幕高度和输入法高度计算抬高值
+        val elevationRatio = 0.47 // 抬高比例，你可以调整这个比例
+        val calculatedElevation = (keyboardHeight * elevationRatio).toInt()
+        // 根据计算结果抬高窗口
+        val newY = originalWindowY - calculatedElevation
+        windowManager.updateViewLayout(
+            binding.root,
+            windowLayoutParams.apply {
+                y = newY
+            }
+        )
+    }
+
+    // Method to reset the window position when the keyboard is hidden
+    private fun resetWindowPosition() {
+        windowManager.updateViewLayout(
+            binding.root,
+            windowLayoutParams.apply {
+                y = originalWindowY
+            }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun initIMEMethod() {
+        // 保存原始位置
+        originalWindowY = windowLayoutParams.y
+
+        // 获取屏幕高度
+        val metrics = DisplayMetrics()
+        windowManager.defaultDisplay.getMetrics(metrics)
+        screenHeight = metrics.heightPixels
+
+        // 设置 WindowInsets 监听器
+        binding.root.setOnApplyWindowInsetsListener { v, insets ->
+            val imeVisible = insets.isVisible(WindowInsets.Type.ime())
+            val imeHeight = insets.getInsets(WindowInsets.Type.ime()).bottom
+
+            if (imeVisible != isKeyboardVisible) {
+                isKeyboardVisible = imeVisible
+                if (isKeyboardVisible) {
+                    elevateWindow(imeHeight)
+                } else {
+                    resetWindowPosition()
+                }
+            }
+            v.onApplyWindowInsets(insets) // 确保继续传递 insets
+        }
+    }
+
     @RequiresApi(Build.VERSION_CODES.R)
     @SuppressLint("ClickableViewAccessibility")
     fun initView() {
@@ -388,63 +447,16 @@ class FreeformView(
             }
         }
 
-        // 保存原始位置
-        originalWindowY = windowLayoutParams.y
-
-        // 获取屏幕高度
-        val metrics = DisplayMetrics()
-        windowManager.defaultDisplay.getMetrics(metrics)
-        screenHeight = metrics.heightPixels
-
-        // 设置 WindowInsets 监听器
-        binding.root.setOnApplyWindowInsetsListener { v, insets ->
-            val imeVisible = insets.isVisible(WindowInsets.Type.ime())
-            val imeHeight = insets.getInsets(WindowInsets.Type.ime()).bottom
-
-            if (imeVisible != isKeyboardVisible) {
-                isKeyboardVisible = imeVisible
-                if (isKeyboardVisible) {
-                    elevateWindow(imeHeight)
-                } else {
-                    resetWindowPosition()
-                }
-            }
-            v.onApplyWindowInsets(insets) // 确保继续传递 insets
-        }
-
         refreshFreeformSize()
 
         initFloatBar()
 
         resetScale()
 
+        initIMEMethod()
+
         binding.freeformRoot.alpha = 1f
         binding.textureView.alpha = 0f
-    }
-
-    // Method to elevate the window when the keyboard is shown
-    private fun elevateWindow(keyboardHeight: Int) {
-        // 根据屏幕高度和输入法高度计算抬高值
-        val elevationRatio = 0.42 // 抬高比例，你可以调整这个比例
-        val calculatedElevation = (keyboardHeight * elevationRatio).toInt()
-        // 根据计算结果抬高窗口
-        val newY = originalWindowY - calculatedElevation
-        windowManager.updateViewLayout(
-            binding.root,
-            windowLayoutParams.apply {
-                y = newY
-            }
-        )
-    }
-
-    // Method to reset the window position when the keyboard is hidden
-    private fun resetWindowPosition() {
-        windowManager.updateViewLayout(
-            binding.root,
-            windowLayoutParams.apply {
-                y = originalWindowY
-            }
-        )
     }
 
     private fun performBackKey() {
@@ -488,6 +500,7 @@ class FreeformView(
                     startToEnd = ConstraintLayout.LayoutParams.UNSET
                     bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
                     endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
+                    setMargins(0, 0, 0, desiredMarginBottom)
                 }
                 middleView.visibility = View.VISIBLE
                 sideView.visibility = View.GONE
@@ -960,7 +973,6 @@ class FreeformView(
                     .apply {
                         addUpdateListener {
                             binding.cardRoot.layoutParams = (binding.cardRoot.layoutParams as ConstraintLayout.LayoutParams).apply {
-                                topMargin = it.animatedValue as Int
                             }
                         }
                     },
@@ -968,7 +980,6 @@ class FreeformView(
                     .apply {
                         addUpdateListener {
                             binding.cardRoot.layoutParams = (binding.cardRoot.layoutParams as ConstraintLayout.LayoutParams).apply {
-                                bottomMargin = it.animatedValue as Int
                             }
                         }
                     },
@@ -1033,6 +1044,7 @@ class FreeformView(
 
                 mScaleX = freeformWidth / rootWidth.toFloat()
                 mScaleY = freeformHeight / rootHeight.toFloat()
+
                 isZoomOut = true
             }
         } else if (dx != 0f) {
@@ -1046,6 +1058,7 @@ class FreeformView(
 
                 mScaleX = freeformWidth / rootWidth.toFloat()
                 mScaleY = freeformHeight / rootHeight.toFloat()
+
                 isZoomOut = true
             }
         }

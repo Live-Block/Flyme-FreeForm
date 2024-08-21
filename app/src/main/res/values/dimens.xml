@@ -5,7 +5,8 @@
     <dimen name="top_bar_height">0dp</dimen>
     <dimen name="bottom_bar_height">24dp</dimen>
     <dimen name="bottom_bar_height_flyme">36dp</dimen>
-    <dimen name="card_corner_radius">16dp</dimen>
+    <dimen name="card_corner_radius">18dp</dimen>
+    <dimen name="freeform_corner">28dp</dimen>
     <dimen name="hang_up_tip_size">96dp</dimen>
 
     <dimen name="card_view_margin">16dp</dimen>
