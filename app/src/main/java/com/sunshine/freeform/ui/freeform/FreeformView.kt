@@ -76,13 +76,6 @@ class FreeformView(
     private var originalWindowY = 0
     private var screenHeight = 0
 
-    //bottombar
-    val displayMetrics = context.resources.displayMetrics
-    val screenhigh = displayMetrics.heightPixels
-
-    // 根据屏幕高度动态计算 marginBottom
-    val desiredMarginBottom = (screenhigh * 0.1395).roundToInt()
-
     //叠加层Params
     private val windowLayoutParams = WindowManager.LayoutParams()
 
@@ -500,7 +493,6 @@ class FreeformView(
                     startToEnd = ConstraintLayout.LayoutParams.UNSET
                     bottomToBottom = ConstraintLayout.LayoutParams.PARENT_ID
                     endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
-                    setMargins(0, 0, 0, desiredMarginBottom)
                 }
                 middleView.visibility = View.VISIBLE
                 sideView.visibility = View.GONE
