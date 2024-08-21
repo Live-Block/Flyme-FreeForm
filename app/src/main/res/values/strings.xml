@@ -4,6 +4,8 @@
     <string name="warn">Warn</string>
     <string name="done">Done</string>
     <string name="cancel">Cancel</string>
+    <string name="join_group">Join Telegram Group</string>
+
     <string name="xposed_description">An Xposed module that lets apps run in freeform mode</string>
     <string name="mi_freeform_not_support">Mi-Freeform only supports Android 10 and above</string>
     <string name="privacy_title">Privacy Policy</string>

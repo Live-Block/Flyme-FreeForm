@@ -1,3 +1,5 @@
+@file:Suppress("DEPRECATION")
+
 val preference_version = "1.2.0"
 val room_version = "2.6.1"
 val shizuku_version = "13.1.5"
@@ -28,17 +30,16 @@ android {
 
     signingConfigs {
         create("LiveSign") {
-            if (project.hasProperty("MoCuiLive")) {
                 storeFile = file("D:\\KeySign\\LiveSign.keystore")
                 storePassword = "LiveSign"
                 keyAlias = "MoCuiLive"
                 keyPassword = "MoCuiSign"
             }
         }
-    }
 
     buildTypes {
         release {
+            isZipAlignEnabled = true
             isShrinkResources = true
             isMinifyEnabled = true
             proguardFiles(
