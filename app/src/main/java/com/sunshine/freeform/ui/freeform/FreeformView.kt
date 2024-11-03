@@ -1027,7 +1027,8 @@ class FreeformView(
 
         if (dy != 0f) {
             val tempHeight = freeformHeight + dy
-            val tempWidth = (tempHeight * config.widthHeightRatio).roundToInt() {
+            val tempWidth = (tempHeight * config.widthHeightRatio).roundToInt()
+            if (tempHeight >= minFreeformHeight && tempWidth <= maxFreeformWidth) {
                 freeformHeight += dy.roundToInt()
                 freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
                 if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
@@ -1041,7 +1042,8 @@ class FreeformView(
             }
         } else if (dx != 0f) {
             val tempWidth = freeformWidth + dx
-            val tempHeight = (tempWidth / config.widthHeightRatio).roundToInt() {
+            val tempHeight = (tempWidth / config.widthHeightRatio).roundToInt()
+            if (tempWidth >= minFreeformWidth && tempHeight <= maxFreeformHeight) {
                 freeformWidth += dx.roundToInt()
                 freeformHeight = ((freeformWidth / config.widthHeightRatio) - cardWidthMargin).roundToInt()
                 if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
