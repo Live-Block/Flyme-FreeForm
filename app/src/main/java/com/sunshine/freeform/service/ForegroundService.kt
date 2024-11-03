@@ -403,7 +403,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     override fun onScroll(
-        e1: MotionEvent?,
+        e1: MotionEvent,
         e2: MotionEvent,
         distanceX: Float,
         distanceY: Float
@@ -419,7 +419,7 @@ class ForegroundService : Service(), SharedPreferences.OnSharedPreferenceChangeL
     }
 
     override fun onFling(
-        e1: MotionEvent?,
+        e1: MotionEvent,
         e2: MotionEvent,
         velocityX: Float,
         velocityY: Float
