@@ -8,14 +8,6 @@ plugins {
 }
 
 android {
-    signingConfigs {
-        livesign {
-            storeFile file('D:\\KeySign\\LiveSign.keystore')
-            storePassword 'LiveSign'
-            keyAlias 'MoCuiLive'
-            keyPassword 'MoCuiSign'
-        }
-    }
     compileSdk 34
 
     defaultConfig {
