@@ -142,6 +142,12 @@ class FreeformView(
     private var freeformHeight = 0
     private var freeformWidth = 0
 
+    private var minFreeformHeight = 0
+    private var minFreeformWidth = 0
+
+    private var maxFreeformHeight = 0
+    private var maxFreeformWidth = 0
+
     // 挂起后与边缘的 Padding
     private var screenPaddingX: Int = context.resources.getDimension(R.dimen.freeform_screen_width_padding).roundToInt()
     private var screenPaddingY: Int = context.resources.getDimension(R.dimen.freeform_screen_height_padding).roundToInt()
