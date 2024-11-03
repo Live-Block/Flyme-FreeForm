@@ -142,12 +142,6 @@ class FreeformView(
     private var freeformHeight = 0
     private var freeformWidth = 0
 
-    private var minFreeformHeight = 0
-    private var minFreeformWidth = 0
-
-    private var maxFreeformHeight = 0
-    private var maxFreeformWidth = 0
-
     // 挂起后与边缘的 Padding
     private var screenPaddingX: Int = context.resources.getDimension(R.dimen.freeform_screen_width_padding).roundToInt()
     private var screenPaddingY: Int = context.resources.getDimension(R.dimen.freeform_screen_height_padding).roundToInt()
@@ -1033,8 +1027,7 @@ class FreeformView(
 
         if (dy != 0f) {
             val tempHeight = freeformHeight + dy
-            val tempWidth = (tempHeight * config.widthHeightRatio).roundToInt()
-            if (tempHeight >= minFreeformHeight && tempWidth <= maxFreeformWidth) {
+            if (tempHeight >= hangUpViewHeight && tempHeight <= rootHeight * 0.9) {
                 freeformHeight += dy.roundToInt()
                 freeformWidth = (freeformHeight * config.widthHeightRatio).roundToInt()
                 if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
@@ -1048,8 +1041,7 @@ class FreeformView(
             }
         } else if (dx != 0f) {
             val tempWidth = freeformWidth + dx
-            val tempHeight = (tempWidth / config.widthHeightRatio).roundToInt()
-            if (tempWidth >= minFreeformWidth && tempHeight <= maxFreeformHeight) {
+            if (tempWidth >= hangUpViewWidth && tempWidth <= rootWidth * 0.9) {
                 freeformWidth += dx.roundToInt()
                 freeformHeight = ((freeformWidth / config.widthHeightRatio) - cardWidthMargin).roundToInt()
                 if (virtualDisplayRotation == VIRTUAL_DISPLAY_ROTATION_LANDSCAPE) {
