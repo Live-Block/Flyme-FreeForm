@@ -965,6 +965,7 @@ class FreeformView(
                     .apply {
                         addUpdateListener {
                             binding.cardRoot.layoutParams = (binding.cardRoot.layoutParams as ConstraintLayout.LayoutParams).apply {
+                                topMargin = it.animatedValue as Int
                             }
                         }
                     },
@@ -972,6 +973,7 @@ class FreeformView(
                     .apply {
                         addUpdateListener {
                             binding.cardRoot.layoutParams = (binding.cardRoot.layoutParams as ConstraintLayout.LayoutParams).apply {
+                                bottomMargin = it.animatedValue as Int
                             }
                         }
                     },
