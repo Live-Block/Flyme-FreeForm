@@ -370,7 +370,7 @@ class KeepAliveService : AccessibilityService(), SharedPreferences.OnSharedPrefe
     }
 
     override fun onScroll(
-        e1: MotionEvent?,
+        e1: MotionEvent,
         e2: MotionEvent,
         distanceX: Float,
         distanceY: Float
@@ -386,7 +386,7 @@ class KeepAliveService : AccessibilityService(), SharedPreferences.OnSharedPrefe
     }
 
     override fun onFling(
-        e1: MotionEvent?,
+        e1: MotionEvent,
         e2: MotionEvent,
         velocityX: Float,
         velocityY: Float
