@@ -1118,6 +1118,82 @@ class FreeformView(
         }
     }
 
+    /**
+     * 直接启动最近任务而不重载应用
+     */
+    private fun startActivityFromRecents(taskId: Int) {
+        try {
+            // 直接获取ActivityTaskManager服务
+            val serviceManagerClass = Class.forName("android.os.ServiceManager")
+            val getServiceMethod = serviceManagerClass.getDeclaredMethod("getService", String::class.java)
+            val activityTaskManagerService = getServiceMethod.invoke(null, "activity_task")
+
+            // 创建ActivityOptions并设置目标display ID
+            val options = ActivityOptions.makeBasic()
+            options.setLaunchDisplayId(0) // 设置目标display ID
+            val bundle = options.toBundle()
+
+            // 获取ActivityTaskManager的接口
+            val activityTaskManagerStubClass = Class.forName("android.app.IActivityTaskManager\$Stub")
+            val asInterfaceMethod = activityTaskManagerStubClass.getDeclaredMethod("asInterface", android.os.IBinder::class.java)
+            val activityTaskManager = asInterfaceMethod.invoke(null, activityTaskManagerService)
+
+            // 调用startActivityFromRecents方法
+            val startActivityFromRecentsMethod = activityTaskManager::class.java.getDeclaredMethod(
+                "startActivityFromRecents", 
+                Int::class.javaPrimitiveType, 
+                Bundle::class.java
+            )
+            startActivityFromRecentsMethod.invoke(activityTaskManager, taskId, bundle)
+        } catch (e: Exception) {
+            Log.e("FreeformView", "启动最近任务出错: ${e.message}")
+            // 如果直接启动失败，回退到原来的方式
+            context.startService(
+                Intent(context, FreeformService::class.java)
+                    .setAction(FreeformService.ACTION_CALL_INTENT)
+                    .putExtra(FreeformService.EXTRA_DISPLAY_ID, defaultDisplay.displayId)
+            )
+        }
+    }
+
+    /**
+     * 直接启动最近任务而不重载应用
+     */
+    private fun startActivityFromRecents(taskId: Int) {
+        try {
+            // 直接获取ActivityTaskManager服务
+            val serviceManagerClass = Class.forName("android.os.ServiceManager")
+            val getServiceMethod = serviceManagerClass.getDeclaredMethod("getService", String::class.java)
+            val activityTaskManagerService = getServiceMethod.invoke(null, "activity_task")
+
+            // 创建ActivityOptions并设置目标display ID
+            val options = ActivityOptions.makeBasic()
+            options.setLaunchDisplayId(0) // 设置目标display ID
+            val bundle = options.toBundle()
+
+            // 获取ActivityTaskManager的接口
+            val activityTaskManagerStubClass = Class.forName("android.app.IActivityTaskManager\$Stub")
+            val asInterfaceMethod = activityTaskManagerStubClass.getDeclaredMethod("asInterface", android.os.IBinder::class.java)
+            val activityTaskManager = asInterfaceMethod.invoke(null, activityTaskManagerService)
+
+            // 调用startActivityFromRecents方法
+            val startActivityFromRecentsMethod = activityTaskManager::class.java.getDeclaredMethod(
+                "startActivityFromRecents", 
+                Int::class.javaPrimitiveType, 
+                Bundle::class.java
+            )
+            startActivityFromRecentsMethod.invoke(activityTaskManager, taskId, bundle)
+        } catch (e: Exception) {
+            Log.e("FreeformView", "启动最近任务出错: ${e.message}")
+            // 如果直接启动失败，回退到原来的方式
+            context.startService(
+                Intent(context, FreeformService::class.java)
+                    .setAction(FreeformService.ACTION_CALL_INTENT)
+                    .putExtra(FreeformService.EXTRA_DISPLAY_ID, defaultDisplay.displayId)
+            )
+        }
+    }
+
     @SuppressLint("ClickableViewAccessibility")
     private fun notifyToFloat() {
         if (isZoomOut) {
