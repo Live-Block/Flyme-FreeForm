@@ -9,6 +9,7 @@ import android.app.*
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.os.Bundle
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener
 import android.content.pm.ActivityInfo
 import android.graphics.Color
@@ -505,6 +506,73 @@ class FreeformView(
                 inputManager.injectInputEvent(downEvent, virtualDisplay.display.displayId)
                 inputManager.injectInputEvent(upEvent, virtualDisplay.display.displayId)
             }
+        }
+    }
+
+    /**
+     * 使用反射直接从最近任务中启动任务，避免重载应用
+     */
+    private fun startActivityFromRecents() {
+        try {
+            // 获取当前任务ID
+            val currentTaskId = getCurrentTaskId() ?: return
+            
+            // 获取ActivityManager.getService()方法
+            val getServiceMethod = ActivityManager::class.java.getDeclaredMethod("getService")
+            getServiceMethod.isAccessible = true
+            val activityManagerService = getServiceMethod.invoke(null)
+
+            // 获取mActivityTaskManager字段
+            val mActivityTaskManagerField = activityManagerService.javaClass.getDeclaredField("mActivityTaskManager")
+            mActivityTaskManagerField.isAccessible = true
+            val mActivityTaskManager = mActivityTaskManagerField.get(activityManagerService)
+
+            // 创建ActivityOptions并设置目标display ID
+            val options = ActivityOptions.makeBasic()
+            options.setLaunchDisplayId(defaultDisplay.displayId) // 设置目标display ID为主屏幕
+            val bundle = options.toBundle()
+
+            // 调用startActivityFromRecents方法
+            val startActivityFromRecentsMethod = activityManagerService.javaClass.getDeclaredMethod(
+                "startActivityFromRecents",
+                Int::class.javaPrimitiveType,
+                android.os.Bundle::class.java
+            )
+            startActivityFromRecentsMethod.isAccessible = true
+            startActivityFromRecentsMethod.invoke(activityManagerService, currentTaskId, bundle)
+
+            Log.d(TAG, "成功从最近任务启动应用，任务ID: $currentTaskId")
+        } catch (e: Exception) {
+            Log.e(TAG, "从最近任务启动应用失败: ${e.message}")
+            // 如果反射失败，回退到原来的方式
+            context.startService(
+                Intent(context, FreeformService::class.java)
+                    .setAction(FreeformService.ACTION_CALL_INTENT)
+                    .putExtra(FreeformService.EXTRA_DISPLAY_ID, defaultDisplay.displayId)
+            )
+        }
+    }
+
+    /**
+     * 获取当前小窗中应用的任务ID
+     */
+    private fun getCurrentTaskId(): Int? {
+        return try {
+            // 从任务列表中获取第一个任务ID，这通常是当前正在运行的任务
+            if (taskList.isNotEmpty()) {
+                taskList[0]
+            } else {
+                // 如果任务列表为空，尝试从ActivityTaskManager获取
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val tasks = activityTaskManager.getTasks(10)
+                    tasks.firstOrNull { it.displayId == virtualDisplay.display.displayId }?.taskId
+                } else {
+                    null
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "获取任务ID失败: ${e.message}")
+            null
         }
     }
 
@@ -1232,11 +1300,8 @@ class FreeformView(
                         onStart = { isAnimating = true },
                         onEnd = {
                             isAnimating = false
-                            context.startService(
-                                Intent(context, FreeformService::class.java)
-                                    .setAction(FreeformService.ACTION_CALL_INTENT)
-                                    .putExtra(FreeformService.EXTRA_DISPLAY_ID, defaultDisplay.displayId)
-                            )
+                            // 使用反射直接启动 recents 中的任务，避免重载
+                            startActivityFromRecents()
                             destroy()
                         }
                     )
