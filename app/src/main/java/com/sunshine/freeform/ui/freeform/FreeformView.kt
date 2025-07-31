@@ -18,7 +18,6 @@ import android.graphics.SurfaceTexture
 import android.hardware.display.VirtualDisplay
 import android.net.Uri
 import android.os.Build
-import android.os.Bundle
 import android.os.SystemClock
 import android.provider.Settings
 import android.util.Log
@@ -1119,45 +1118,6 @@ class FreeformView(
         }
     }
 
-    /**
-     * 直接启动最近任务而不重载应用
-     */
-    private fun startActivityFromRecents(taskId: Int) {
-        try {
-            // 获取ActivityManager服务
-            val getServiceMethod = ActivityManager::class.java.getDeclaredMethod("getService")
-            getServiceMethod.isAccessible = true
-            val activityManagerService = getServiceMethod.invoke(null)
-
-            // 获取mActivityTaskManager字段
-            val mActivityTaskManagerField = activityManagerService::class.java.getDeclaredField("mActivityTaskManager")
-            mActivityTaskManagerField.isAccessible = true
-            val mActivityTaskManager = mActivityTaskManagerField.get(activityManagerService)
-
-            // 创建ActivityOptions并设置目标display ID
-            val options = ActivityOptions.makeBasic()
-            options.setLaunchDisplayId(0) // 设置目标display ID
-            val bundle = options.toBundle()
-
-            // 调用startActivityFromRecents方法
-            val startActivityFromRecentsMethod = activityManagerService::class.java.getDeclaredMethod(
-                "startActivityFromRecents", 
-                Int::class.javaPrimitiveType, 
-                android.os.Bundle::class.java
-            )
-            startActivityFromRecentsMethod.isAccessible = true
-            startActivityFromRecentsMethod.invoke(activityManagerService, taskId, bundle)
-        } catch (e: Exception) {
-            Log.e("FreeformView", "启动最近任务出错: ${e.message}")
-            // 如果直接启动失败，回退到原来的方式
-            context.startService(
-                Intent(context, FreeformService::class.java)
-                    .setAction(FreeformService.ACTION_CALL_INTENT)
-                    .putExtra(FreeformService.EXTRA_DISPLAY_ID, defaultDisplay.displayId)
-            )
-        }
-    }
-
     @SuppressLint("ClickableViewAccessibility")
     private fun notifyToFloat() {
         if (isZoomOut) {
@@ -1272,17 +1232,11 @@ class FreeformView(
                         onStart = { isAnimating = true },
                         onEnd = {
                             isAnimating = false
-                            // 使用反射直接启动最近任务，避免重载
-                            if (taskList.isNotEmpty()) {
-                                startActivityFromRecents(taskList.last())
-                            } else {
-                                // 如果没有任务ID，回退到原来的方式
-                                context.startService(
-                                    Intent(context, FreeformService::class.java)
-                                        .setAction(FreeformService.ACTION_CALL_INTENT)
-                                        .putExtra(FreeformService.EXTRA_DISPLAY_ID, defaultDisplay.displayId)
-                                )
-                            }
+                            context.startService(
+                                Intent(context, FreeformService::class.java)
+                                    .setAction(FreeformService.ACTION_CALL_INTENT)
+                                    .putExtra(FreeformService.EXTRA_DISPLAY_ID, defaultDisplay.displayId)
+                            )
                             destroy()
                         }
                     )
